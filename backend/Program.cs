@@ -74,6 +74,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IHospitalRepository, HospitalRepository>();
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 
 // Register generic repositories
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
