@@ -1,0 +1,1 @@
+import{b as o}from"./index-BIBqXrFq.js";const c={getDoctors:t=>o.get("/doctors",{params:t}),getDoctor:t=>o.get(`/doctors/${t}`),createDoctor:t=>o.post("/doctors",t),updateDoctor:(t,r)=>o.put(`/doctors/${t}`,r),deleteDoctor:t=>o.delete(`/doctors/${t}`),getAssignedDoctors:()=>o.get("/doctors/assigned")};export{c as d};
