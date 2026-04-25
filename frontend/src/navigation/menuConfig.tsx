@@ -4,6 +4,7 @@ import {
   Stethoscope,
   MessageSquare,
   Activity,
+  CheckSquare,
 } from 'lucide-react';
 import type { UserRole } from '../types';
 
@@ -24,6 +25,7 @@ export const menuConfig: MenuSection[] = [
     label: 'MAIN',
     items: [
       { label: 'Dashboard', path: '/', icon: <LayoutDashboard className="w-5 h-5" />, roles: ['Admin', 'SalesManager', 'SalesMember'] },
+      { label: 'Tasks', path: '/tasks', icon: <CheckSquare className="w-5 h-5" />, roles: ['Admin', 'SalesManager', 'SalesMember'] },
     ],
   },
   {
