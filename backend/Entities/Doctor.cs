@@ -31,6 +31,8 @@ public class Doctor
 
     public PotentialLevel PotentialLevel { get; set; } = PotentialLevel.C;
 
+    public Temperature Temperature { get; set; } = Temperature.WARM;
+
     public Guid? AssignedSalesId { get; set; }
 
     public User? AssignedSales { get; set; }
