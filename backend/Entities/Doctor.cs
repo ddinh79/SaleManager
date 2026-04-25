@@ -39,6 +39,9 @@ public class Doctor
 
     public DateTime UpdatedAt { get; set; }
 
+    public DateTime? LastActivityAt { get; set; }
+    public DateTime? NextFollowUpAt { get; set; }
+
     public ICollection<Activity> Activities { get; set; } = new List<Activity>();
 
     public ICollection<Deal> Deals { get; set; } = new List<Deal>();

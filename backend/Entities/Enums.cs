@@ -59,3 +59,10 @@ public enum NotificationType
     DealClosing,
     InactiveAlert
 }
+
+public enum GpsStatus
+{
+    VALID,
+    SUSPICIOUS,
+    MISSING
+}
