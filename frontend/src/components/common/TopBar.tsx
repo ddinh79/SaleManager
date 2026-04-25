@@ -25,10 +25,17 @@ export const TopBar: React.FC = () => {
           <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
         </button>
 
-        <div className="flex items-center gap-3 px-3 py-2">
-          <div className="text-right">
-            <p className="text-sm font-medium text-slate-900">{user?.fullName}</p>
-            <p className="text-xs text-slate-500">{user?.role}</p>
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+            {user?.avatarUrl ? (
+              <img src={user.avatarUrl} alt={user.fullName} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-sm font-medium text-gray-500">{user?.fullName?.[0]}</span>
+            )}
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-900">{user?.fullName}</p>
+            <p className="text-xs text-gray-500">{user?.role}</p>
           </div>
         </div>
 
