@@ -9,6 +9,7 @@ public class UserResponse
     public string Role { get; set; } = string.Empty;
     public Guid? ManagerId { get; set; }
     public string? ManagerName { get; set; }
+    public string? AvatarUrl { get; set; }
     public DateTime CreatedAt { get; set; }
     public bool IsActive { get; set; }
 }

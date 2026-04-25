@@ -62,7 +62,7 @@ public class UsersController : ControllerBase
 
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<UserResponse>> UpdateUser(Guid id, [FromBody] RegisterRequest request)
+    public async Task<ActionResult<UserResponse>> UpdateUser(Guid id, [FromBody] UpdateUserRequest request)
     {
         var success = await _userService.UpdateUserAsync(id, request);
         if (!success)

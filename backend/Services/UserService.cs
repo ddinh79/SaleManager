@@ -43,6 +43,7 @@ public class UserService : IUserService
             FullName = request.FullName,
             Role = Enum.Parse<UserRole>(request.Role),
             ManagerId = request.ManagerId,
+            AvatarUrl = request.AvatarUrl,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             IsActive = true
@@ -53,7 +54,7 @@ public class UserService : IUserService
         return MapToUserResponse(user);
     }
 
-    public async Task<bool> UpdateUserAsync(Guid id, RegisterRequest request)
+    public async Task<bool> UpdateUserAsync(Guid id, UpdateUserRequest request)
     {
         var user = await _userRepository.GetByIdAsync(id);
         if (user == null)
@@ -66,6 +67,7 @@ public class UserService : IUserService
         user.FullName = request.FullName;
         user.Role = Enum.Parse<UserRole>(request.Role);
         user.ManagerId = request.ManagerId;
+        user.AvatarUrl = request.AvatarUrl;
         user.UpdatedAt = DateTime.UtcNow;
 
         if (!string.IsNullOrEmpty(request.Password))
@@ -120,6 +122,7 @@ public class UserService : IUserService
             Role = user.Role.ToString(),
             ManagerId = user.ManagerId,
             ManagerName = user.Manager?.FullName,
+            AvatarUrl = user.AvatarUrl,
             CreatedAt = user.CreatedAt,
             IsActive = user.IsActive
         };

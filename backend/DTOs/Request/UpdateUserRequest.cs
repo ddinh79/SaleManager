@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SalesSystem.DTOs.Request;
 
-public class RegisterRequest
+public class UpdateUserRequest
 {
     [Required]
     [MaxLength(50)]
@@ -13,9 +13,8 @@ public class RegisterRequest
     [MaxLength(100)]
     public string Email { get; set; } = string.Empty;
 
-    [Required]
     [MinLength(6)]
-    public string Password { get; set; } = string.Empty;
+    public string? Password { get; set; }
 
     [Required]
     [MaxLength(100)]
