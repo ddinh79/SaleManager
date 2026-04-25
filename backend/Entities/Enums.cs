@@ -66,3 +66,10 @@ public enum GpsStatus
     SUSPICIOUS,
     MISSING
 }
+
+public enum Temperature
+{
+    HOT,
+    WARM,
+    COLD
+}
