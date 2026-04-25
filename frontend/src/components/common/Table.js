@@ -1,0 +1,6 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+export function Table({ columns, data, onRowClick, emptyMessage = 'No data available' }) {
+    return (_jsx("div", { className: "overflow-x-auto", children: _jsxs("table", { className: "min-w-full divide-y divide-slate-200", children: [_jsx("thead", { className: "bg-slate-50", children: _jsx("tr", { children: columns.map((column) => (_jsx("th", { className: "px-4 py-3 text-left text-sm font-semibold text-slate-700", children: column.header }, String(column.key)))) }) }), _jsx("tbody", { className: "bg-white divide-y divide-slate-200", children: data.length === 0 ? (_jsx("tr", { children: _jsx("td", { colSpan: columns.length, className: "px-4 py-12 text-center text-slate-500", children: emptyMessage }) })) : (data.map((item, index) => (_jsx("tr", { onClick: () => onRowClick?.(item), className: onRowClick ? 'cursor-pointer hover:bg-slate-50' : '', children: columns.map((column) => (_jsx("td", { className: "px-4 py-3 text-sm text-slate-700", children: column.render
+                                ? column.render(item)
+                                : String(item[column.key] ?? '') }, String(column.key)))) }, item.id ?? index)))) })] }) }));
+}
