@@ -1,8 +1,9 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Building2 } from 'lucide-react';
+import { LayoutDashboard, Users, Building2, User } from 'lucide-react';
 const menuItems = [
     { label: 'Dashboard', path: '/', icon: _jsx(LayoutDashboard, { className: "w-5 h-5" }) },
+    { label: 'Users', path: '/users', icon: _jsx(User, { className: "w-5 h-5" }) },
     { label: 'Doctors', path: '/doctors', icon: _jsx(Users, { className: "w-5 h-5" }) },
     { label: 'Hospitals', path: '/hospitals', icon: _jsx(Building2, { className: "w-5 h-5" }) },
 ];
