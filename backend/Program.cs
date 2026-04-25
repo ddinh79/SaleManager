@@ -85,6 +85,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IHospitalService, HospitalService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
 builder.Services.AddScoped<IKpiService, KpiService>();
+builder.Services.AddScoped<IActivityService, ActivityService>();
 
 var app = builder.Build();
 
