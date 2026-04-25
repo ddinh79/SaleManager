@@ -1,5 +1,7 @@
 import { Users, DollarSign, TrendingUp, Activity } from 'lucide-react';
 import { Card } from '../components/common/Card';
+import { Button } from '../components/common/Button';
+import { useNavigate } from 'react-router-dom';
 
 const stats = [
   { label: 'Total Doctors', value: '156', icon: Users, color: 'text-blue-600 bg-blue-100' },
@@ -22,6 +24,8 @@ const dealsClosing = [
 ];
 
 export const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="space-y-6">
       <div>
@@ -45,6 +49,20 @@ export const Dashboard: React.FC = () => {
           </Card>
         ))}
       </div>
+
+      {/* Quick Access to Users */}
+      <Card className="p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-slate-800">Team Members</h3>
+            <p className="text-sm text-slate-500">Manage your sales team and view performance</p>
+          </div>
+          <Button onClick={() => navigate('/users')}>
+            <Users className="w-4 h-4 mr-2" />
+            View Users
+          </Button>
+        </div>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Activities */}
