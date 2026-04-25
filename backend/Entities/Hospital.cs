@@ -14,6 +14,9 @@ public class Hospital
     [MaxLength(500)]
     public string? Address { get; set; }
 
+    public decimal? Lat { get; set; }
+    public decimal? Lng { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
     public DateTime UpdatedAt { get; set; }
