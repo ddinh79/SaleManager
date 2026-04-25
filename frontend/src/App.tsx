@@ -4,6 +4,8 @@ import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { Doctors } from './pages/Doctors';
 import { Hospitals } from './pages/Hospitals';
+import { Users } from './pages/Users';
+import { UserDetail } from './pages/UserDetail';
 import { NotFound } from './pages/NotFound';
 import { useAuthStore } from './store/authStore';
 
@@ -33,6 +35,8 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="doctors" element={<Doctors />} />
           <Route path="hospitals" element={<Hospitals />} />
+          <Route path="users" element={<Users />} />
+          <Route path="users/:id" element={<UserDetail />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
