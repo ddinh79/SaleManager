@@ -87,6 +87,34 @@ public class ActivityService : IActivityService
         {
             doctor.NextFollowUpAt = request.NextFollowUpAt;
         }
+
+        // Auto-update temperature based on result
+        if (request.Result == "interested")
+        {
+            doctor.Temperature = Temperature.HOT;
+        }
+        else if (request.Result == "follow_up_needed")
+        {
+            doctor.Temperature = Temperature.WARM;
+        }
+        else
+        {
+            doctor.Temperature = Temperature.COLD;
+        }
+
+        // Auto-set next_follow_up_at based on activity type
+        if (!request.NextFollowUpAt.HasValue)
+        {
+            if (request.Type == ActivityType.MEETING)
+            {
+                doctor.NextFollowUpAt = DateTime.UtcNow.AddDays(2);
+            }
+            else if (request.Type == ActivityType.CALL)
+            {
+                doctor.NextFollowUpAt = DateTime.UtcNow.AddDays(3);
+            }
+        }
+
         await _doctorRepo.UpdateAsync(doctor);
 
         return MapToResponse(activity, doctor.Name);
