@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SalesSystem.Helpers;
 using SalesSystem.Services;
+using SalesSystem.Entities;
+using SalesSystem.Repositories;
 
 namespace backend.Controllers;
 
@@ -13,10 +15,12 @@ namespace backend.Controllers;
 public class DoctorsController : ControllerBase
 {
     private readonly IDoctorService _doctorService;
+    private readonly IDoctorRepository _doctorRepo;
 
-    public DoctorsController(IDoctorService doctorService)
+    public DoctorsController(IDoctorService doctorService, IDoctorRepository doctorRepo)
     {
         _doctorService = doctorService;
+        _doctorRepo = doctorRepo;
     }
 
     [HttpGet]
@@ -113,9 +117,51 @@ public class DoctorsController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpPost("{id}/temperature")]
+    public async Task<ActionResult> UpdateTemperature(Guid id, [FromBody] UpdateTemperatureRequest request)
+    {
+        var doctor = await _doctorRepo.GetByIdAsync(id);
+        if (doctor == null) return NotFound();
+
+        if (Enum.TryParse<Temperature>(request.Temperature, true, out var temp))
+        {
+            doctor.Temperature = temp;
+            await _doctorRepo.UpdateAsync(doctor);
+            return Ok();
+        }
+
+        return BadRequest("Invalid temperature value");
+    }
+
+    [HttpPost("{id}/snooze")]
+    public async Task<ActionResult> SnoozeTask(Guid id, [FromBody] SnoozeRequest request)
+    {
+        var doctor = await _doctorRepo.GetByIdAsync(id);
+        if (doctor == null) return NotFound();
+
+        if (doctor.NextFollowUpAt.HasValue)
+        {
+            doctor.NextFollowUpAt = doctor.NextFollowUpAt.Value.AddDays(request.Days);
+            await _doctorRepo.UpdateAsync(doctor);
+            return Ok();
+        }
+
+        return BadRequest("No task to snooze");
+    }
 }
 
 public class AssignDoctorRequest
 {
     public Guid? SalesId { get; set; }
+}
+
+public class UpdateTemperatureRequest
+{
+    public string Temperature { get; set; } = string.Empty;
+}
+
+public class SnoozeRequest
+{
+    public int Days { get; set; }
 }
