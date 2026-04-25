@@ -8,6 +8,8 @@ export interface User {
   email: string;
   fullName: string;
   role: UserRole;
+  avatarUrl?: string;
+  phone?: string;
   managerId?: string;
   managerName?: string;
   createdAt: string;

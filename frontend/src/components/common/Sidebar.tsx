@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Building2 } from 'lucide-react';
+import { LayoutDashboard, Users, Building2, User } from 'lucide-react';
 
 interface MenuItem {
   label: string;
@@ -14,6 +14,7 @@ interface SidebarProps {
 
 const menuItems: MenuItem[] = [
   { label: 'Dashboard', path: '/', icon: <LayoutDashboard className="w-5 h-5" /> },
+  { label: 'Users', path: '/users', icon: <User className="w-5 h-5" /> },
   { label: 'Doctors', path: '/doctors', icon: <Users className="w-5 h-5" /> },
   { label: 'Hospitals', path: '/hospitals', icon: <Building2 className="w-5 h-5" /> },
 ];
