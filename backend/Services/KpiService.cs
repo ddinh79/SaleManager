@@ -36,7 +36,7 @@ public class KpiService : IKpiService
         var totalDeals = deals.Count;
         var wonDeals = deals.Count(d => d.Stage == DealStage.WON);
         var lostDeals = deals.Count(d => d.Stage == DealStage.LOST);
-        var totalRevenue = orders.Where(o => o.Status == OrderStatus.Completed).Sum(o => o.TotalValue);
+        var totalRevenue = orders.Where(o => o.Status == OrderStatus.COMPLETED).Sum(o => o.TotalValue);
 
         var conversionRate = totalDeals > 0 ? (decimal)wonDeals / totalDeals * 100 : 0;
         var activityScore = (totalCalls * 1) + (totalMeetings * 3) + (wonDeals * 5);
@@ -90,7 +90,7 @@ public class KpiService : IKpiService
                 Calls = dayActivities.Count(a => a.Type == ActivityType.CALL),
                 Meetings = dayActivities.Count(a => a.Type == ActivityType.MEETING),
                 NewDeals = dayDeals.Count(d => d.Stage == DealStage.NEW),
-                Revenue = dayOrders.Where(o => o.Status == OrderStatus.Completed).Sum(o => o.TotalValue)
+                Revenue = dayOrders.Where(o => o.Status == OrderStatus.COMPLETED).Sum(o => o.TotalValue)
             });
         }
 
@@ -163,7 +163,7 @@ public class KpiService : IKpiService
             var monthDeals = deals.Where(d => d.CreatedAt >= monthStart && d.CreatedAt < monthEnd).ToList();
             var monthOrders = orders.Where(o => o.CreatedAt >= monthStart && o.CreatedAt < monthEnd).ToList();
 
-            var revenue = monthOrders.Where(o => o.Status == OrderStatus.Completed).Sum(o => o.TotalValue);
+            var revenue = monthOrders.Where(o => o.Status == OrderStatus.COMPLETED).Sum(o => o.TotalValue);
             var avgDealSize = monthDeals.Any() ? monthDeals.Average(d => d.Value) : 0;
 
             result.Add(new MonthlyKpiResponse
@@ -186,7 +186,7 @@ public class KpiService : IKpiService
             .Where(o => o.Deal.SalesId == userId && o.CreatedAt >= from && o.CreatedAt <= to)
             .ToListAsync();
 
-        return orders.Where(o => o.Status == OrderStatus.Completed).Sum(o => o.TotalValue);
+        return orders.Where(o => o.Status == OrderStatus.COMPLETED).Sum(o => o.TotalValue);
     }
 
     public async Task<int> GetTotalCallsAsync(Guid userId, DateTime from, DateTime to)

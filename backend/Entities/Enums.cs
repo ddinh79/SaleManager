@@ -47,9 +47,11 @@ public enum PotentialLevel
 
 public enum OrderStatus
 {
-    Pending,
-    Shipped,
-    Completed
+    PENDING_APPROVAL,
+    APPROVED,
+    READY_TO_SHIP,
+    SHIPPED,
+    COMPLETED
 }
 
 public enum NotificationType
