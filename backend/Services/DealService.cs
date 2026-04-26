@@ -12,13 +12,15 @@ public class DealService : IDealService
     private readonly IDealRepository _dealRepo;
     private readonly IDoctorRepository _doctorRepo;
     private readonly IUserRepository _userRepo;
+    private readonly IOrderRepository _orderRepo;
 
-    public DealService(AppDbContext context, IDealRepository dealRepo, IDoctorRepository doctorRepo, IUserRepository userRepo)
+    public DealService(AppDbContext context, IDealRepository dealRepo, IDoctorRepository doctorRepo, IUserRepository userRepo, IOrderRepository orderRepo)
     {
         _context = context;
         _dealRepo = dealRepo;
         _doctorRepo = doctorRepo;
         _userRepo = userRepo;
+        _orderRepo = orderRepo;
     }
 
     public async Task<DealResponse> CreateDealAsync(CreateDealRequest request, Guid salesId)
@@ -177,6 +179,25 @@ public class DealService : IDealService
         }
 
         deal.Stage = newStage;
+
+        // Auto-create order when deal becomes WON
+        if (newStage == DealStage.WON && oldStage != DealStage.WON)
+        {
+            var order = new Order
+            {
+                DealId = deal.Id,
+                DoctorId = deal.DoctorId,
+                Product = deal.Product,
+                Quantity = deal.Quantity,
+                Price = deal.UnitPrice,
+                TotalValue = deal.TotalValue,
+                Status = OrderStatus.PENDING_APPROVAL,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            await _orderRepo.AddAsync(order);
+        }
+
         deal.Probability = newStage switch
         {
             DealStage.NEW => 10,
