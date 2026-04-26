@@ -93,6 +93,9 @@ builder.Services.AddScoped<IDealService, DealService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 
+// Background services
+builder.Services.AddHostedService<NotificationBackgroundService>();
+
 // SignalR
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<INotificationHubContext, NotificationHubContext>();
