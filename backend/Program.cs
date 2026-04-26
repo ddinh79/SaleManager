@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SalesSystem.Data;
+using SalesSystem.Hubs;
 using SalesSystem.Middleware;
 using SalesSystem.Repositories;
 using SalesSystem.Services;
@@ -92,6 +93,11 @@ builder.Services.AddScoped<IDealService, DealService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 
+// SignalR
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<INotificationHubContext, NotificationHubContext>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+
 var app = builder.Build();
 
 // Ensure database created on startup
@@ -115,6 +121,7 @@ app.UseAuthorization();
 app.UseJwtMiddleware();
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 var urls = builder.Configuration["urls"] ?? "http://localhost:5000";
 app.Urls.Add(urls);
