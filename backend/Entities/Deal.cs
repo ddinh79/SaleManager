@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SalesSystem.Entities;
 
@@ -15,6 +16,15 @@ public class Deal
 
     public ProductType Product { get; set; }
 
+    public int Quantity { get; set; }
+
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal UnitPrice { get; set; }
+
+    [NotMapped]
+    public decimal TotalValue => Quantity * UnitPrice;
+
+    // Deprecated: kept for migration compatibility
     public decimal Value { get; set; }
 
     public DateTime ExpectedCloseDate { get; set; }

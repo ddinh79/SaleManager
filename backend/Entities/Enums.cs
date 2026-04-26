@@ -34,9 +34,8 @@ public enum DealStage
 
 public enum ProductType
 {
-    SCAR_SHEET,
-    SCAR_CREAM,
-    BOTH
+    SILICONE,
+    CREAM
 }
 
 public enum PotentialLevel
