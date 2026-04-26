@@ -133,3 +133,25 @@ export interface ForecastResponse {
   totalPipelineValue: number;
   weightedForecast: number;
 }
+
+// Order types
+export type OrderStatus = 'PENDING_APPROVAL' | 'APPROVED' | 'READY_TO_SHIP' | 'SHIPPED' | 'COMPLETED';
+
+export interface Order {
+  id: string;
+  dealId: string;
+  doctorId: string;
+  doctorName: string;
+  product: ProductType;
+  quantity: number;
+  price: number;
+  totalAmount: number;
+  status: OrderStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrderListResponse {
+  items: Order[];
+  totalCount: number;
+}

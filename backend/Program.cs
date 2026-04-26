@@ -76,6 +76,7 @@ builder.Services.AddScoped<IHospitalRepository, HospitalRepository>();
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 builder.Services.AddScoped<IDealRepository, DealRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
 // Register generic repositories
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -88,6 +89,7 @@ builder.Services.AddScoped<IDoctorService, DoctorService>();
 builder.Services.AddScoped<IKpiService, KpiService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<IDealService, DealService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 var app = builder.Build();
 
