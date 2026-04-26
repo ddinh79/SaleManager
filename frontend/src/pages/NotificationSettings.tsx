@@ -123,4 +123,7 @@ const NotificationSettingsPage = () => {
   );
 };
 
+const NotificationSettings = NotificationSettingsPage;
+
+export { NotificationSettings };
 export default NotificationSettingsPage;
