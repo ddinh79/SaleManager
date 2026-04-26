@@ -90,6 +90,7 @@ builder.Services.AddScoped<IKpiService, KpiService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<IDealService, DealService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 var app = builder.Build();
 
