@@ -26,7 +26,9 @@ export const menuConfig: MenuSection[] = [
   {
     label: 'MAIN',
     items: [
-      { label: 'Dashboard', path: '/', icon: <LayoutDashboard className="w-5 h-5" />, roles: ['Admin', 'SalesManager', 'SalesMember'] },
+      { label: 'Dashboard (CEO)', path: '/dashboard/ceo', icon: <LayoutDashboard className="w-5 h-5" />, roles: ['Admin'] },
+      { label: 'Dashboard', path: '/dashboard/manager', icon: <LayoutDashboard className="w-5 h-5" />, roles: ['SalesManager'] },
+      { label: 'My Dashboard', path: '/dashboard/sales', icon: <LayoutDashboard className="w-5 h-5" />, roles: ['SalesMember'] },
       { label: 'Tasks', path: '/tasks', icon: <CheckSquare className="w-5 h-5" />, roles: ['Admin', 'SalesManager', 'SalesMember'] },
       { label: 'Orders', path: '/orders', icon: <ShoppingCart className="w-5 h-5" />, roles: ['Admin', 'SalesManager', 'SalesMember'] },
       { label: 'Deals', path: '/deals', icon: <Briefcase className="w-5 h-5" />, roles: ['Admin', 'SalesManager', 'SalesMember'] },
