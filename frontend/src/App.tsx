@@ -19,6 +19,8 @@ const Deals = lazy(() => import('./pages/Deals').then(m => ({ default: m.Deals }
 const Orders = lazy(() => import('./pages/Orders').then(m => ({ default: m.Orders })));
 const Interactions = lazy(() => import('./pages/Interactions').then(m => ({ default: m.Interactions })));
 const Activities = lazy(() => import('./pages/Activities').then(m => ({ default: m.Activities })));
+const Notifications = lazy(() => import('./pages/Notifications').then(m => ({ default: m.default })));
+const NotificationSettings = lazy(() => import('./pages/NotificationSettings').then(m => ({ default: m.default })));
 const Unauthorized = lazy(() => import('./pages/Unauthorized').then(m => ({ default: m.Unauthorized })));
 const NotFound = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
 
@@ -121,6 +123,8 @@ function App() {
               }
             />
             <Route path="activities" element={<Activities />} />
+            <Route path="notifications" element={<Notifications />} />
+            <Route path="notifications/settings" element={<NotificationSettings />} />
           </Route>
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="*" element={<NotFound />} />
