@@ -21,7 +21,7 @@ public class Order
 
     public decimal TotalValue { get; set; }
 
-    public OrderStatus Status { get; set; } = OrderStatus.Pending;
+    public OrderStatus Status { get; set; } = OrderStatus.PENDING_APPROVAL;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
