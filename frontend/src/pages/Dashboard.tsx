@@ -2,6 +2,8 @@ import { Users, DollarSign, TrendingUp, Activity } from 'lucide-react';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { useNavigate } from 'react-router-dom';
+import { dealService } from '../services/dealService';
+import { useState, useEffect } from 'react';
 
 const stats = [
   { label: 'Total Doctors', value: '156', icon: Users, color: 'text-blue-600 bg-blue-100' },
@@ -25,6 +27,23 @@ const dealsClosing = [
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
+  const [forecast, setForecast] = useState<{ totalPipelineValue: number; weightedForecast: number } | null>(null);
+
+  useEffect(() => {
+    loadForecast();
+  }, []);
+
+  const loadForecast = async () => {
+    try {
+      const data = await dealService.getForecast();
+      setForecast({
+        totalPipelineValue: data.totalPipelineValue,
+        weightedForecast: data.weightedForecast,
+      });
+    } catch (error) {
+      console.error('Failed to load forecast:', error);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -48,6 +67,15 @@ export const Dashboard: React.FC = () => {
             </div>
           </Card>
         ))}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+          <div className="text-sm text-slate-500 mb-1">Pipeline Value</div>
+          <div className="text-2xl font-bold text-slate-800">
+            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(forecast?.totalPipelineValue || 0)}
+          </div>
+          <div className="text-xs text-slate-500 mt-1">
+            Weighted: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(forecast?.weightedForecast || 0)}
+          </div>
+        </div>
       </div>
 
       {/* Quick Access to Users */}
