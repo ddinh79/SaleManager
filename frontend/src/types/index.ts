@@ -73,3 +73,63 @@ export interface CreateHospitalRequest {
   name: string;
   address?: string;
 }
+
+// Deal types
+export type DealStage = 'NEW' | 'IN_PROGRESS' | 'NEGOTIATION' | 'WON' | 'LOST';
+export type ProductType = 'SILICONE' | 'CREAM';
+
+export interface Deal {
+  id: string;
+  doctorId: string;
+  doctorName: string;
+  salesId: string;
+  salesName: string;
+  product: ProductType;
+  quantity: number;
+  unitPrice: number;
+  totalValue: number;
+  stage: DealStage;
+  probability: number;
+  expectedCloseDate: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateDealRequest {
+  doctorId: string;
+  product: ProductType;
+  quantity: number;
+  unitPrice: number;
+  expectedCloseDate?: string;
+  notes?: string;
+}
+
+export interface UpdateDealRequest {
+  product?: ProductType;
+  quantity?: number;
+  unitPrice?: number;
+  expectedCloseDate?: string;
+  notes?: string;
+}
+
+export interface UpdateStageRequest {
+  stage: DealStage;
+}
+
+export interface PipelineResponse {
+  stages: Record<DealStage, Deal[]>;
+}
+
+export interface ForecastStageItem {
+  stage: DealStage;
+  count: number;
+  totalValue: number;
+  weightedValue: number;
+}
+
+export interface ForecastResponse {
+  stages: ForecastStageItem[];
+  totalPipelineValue: number;
+  weightedForecast: number;
+}
