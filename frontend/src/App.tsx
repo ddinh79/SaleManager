@@ -12,6 +12,7 @@ const UserDetail = lazy(() => import('./pages/UserDetail').then(m => ({ default:
 const Doctors = lazy(() => import('./pages/Doctors').then(m => ({ default: m.Doctors })));
 const DoctorDetail = lazy(() => import('./pages/DoctorDetail').then(m => ({ default: m.DoctorDetail })));
 const Hospitals = lazy(() => import('./pages/Hospitals').then(m => ({ default: m.Hospitals })));
+const Deals = lazy(() => import('./pages/Deals').then(m => ({ default: m.Deals })));
 const Interactions = lazy(() => import('./pages/Interactions').then(m => ({ default: m.Interactions })));
 const Activities = lazy(() => import('./pages/Activities').then(m => ({ default: m.Activities })));
 const Unauthorized = lazy(() => import('./pages/Unauthorized').then(m => ({ default: m.Unauthorized })));
@@ -79,6 +80,7 @@ function App() {
             <Route path="doctors" element={<Doctors />} />
             <Route path="doctors/:id" element={<DoctorDetail />} />
             <Route path="hospitals" element={<Hospitals />} />
+            <Route path="deals" element={<Deals />} />
             <Route
               path="interactions"
               element={
