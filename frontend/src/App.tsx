@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { MainLayout } from './layouts/MainLayout';
 import { Login } from './pages/Login';
 import { useAuthStore } from './store/authStore';
@@ -7,6 +7,9 @@ import type { UserRole } from './types';
 
 // Lazy load pages - use .then to handle named exports
 const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
+const CEODashboard = lazy(() => import('./pages/CEODashboard'));
+const ManagerDashboard = lazy(() => import('./pages/ManagerDashboard'));
+const SalesDashboard = lazy(() => import('./pages/SalesDashboard'));
 const Users = lazy(() => import('./pages/Users').then(m => ({ default: m.Users })));
 const UserDetail = lazy(() => import('./pages/UserDetail').then(m => ({ default: m.UserDetail })));
 const Doctors = lazy(() => import('./pages/Doctors').then(m => ({ default: m.Doctors })));
@@ -25,6 +28,29 @@ const LoadingFallback: React.FC = () => (
     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-700"></div>
   </div>
 );
+
+// Dashboard router - redirects to role-specific dashboard
+const DashboardRouter: React.FC = () => {
+  const user = useAuthStore((state) => state.user);
+
+  useEffect(() => {
+    if (!user) return;
+    // Redirect is handled in the Route component
+  }, [user]);
+
+  if (!user) return <LoadingFallback />;
+
+  switch (user.role) {
+    case 'Admin':
+      return <Navigate to="/dashboard/ceo" replace />;
+    case 'SalesManager':
+      return <Navigate to="/dashboard/manager" replace />;
+    case 'SalesMember':
+      return <Navigate to="/dashboard/sales" replace />;
+    default:
+      return <Navigate to="/unauthorized" replace />;
+  }
+};
 
 // ProtectedRoute with roles check
 interface ProtectedRouteProps {
@@ -61,7 +87,10 @@ function App() {
               </ProtectedRoute>
             }
           >
-            <Route index element={<Dashboard />} />
+            <Route index element={<DashboardRouter />} />
+            <Route path="dashboard/ceo" element={<CEODashboard />} />
+            <Route path="dashboard/manager" element={<ManagerDashboard />} />
+            <Route path="dashboard/sales" element={<SalesDashboard />} />
             <Route
               path="users"
               element={
