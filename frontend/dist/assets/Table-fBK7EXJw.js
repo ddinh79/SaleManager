@@ -1,6 +1,0 @@
-import{c as x,j as e}from"./index-BIBqXrFq.js";/**
- * @license lucide-react v0.294.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */const n=x("Plus",[["path",{d:"M5 12h14",key:"1ays0h"}],["path",{d:"M12 5v14",key:"s699le"}]]);function c({columns:r,data:d,onRowClick:s,emptyMessage:l="No data available"}){return e.jsx("div",{className:"overflow-x-auto",children:e.jsxs("table",{className:"min-w-full divide-y divide-slate-200",children:[e.jsx("thead",{className:"bg-slate-50",children:e.jsx("tr",{children:r.map(t=>e.jsx("th",{className:"px-4 py-3 text-left text-sm font-semibold text-slate-700",children:t.header},String(t.key)))})}),e.jsx("tbody",{className:"bg-white divide-y divide-slate-200",children:d.length===0?e.jsx("tr",{children:e.jsx("td",{colSpan:r.length,className:"px-4 py-12 text-center text-slate-500",children:l})}):d.map((t,i)=>e.jsx("tr",{onClick:()=>s==null?void 0:s(t),className:s?"cursor-pointer hover:bg-slate-50":"",children:r.map(a=>e.jsx("td",{className:"px-4 py-3 text-sm text-slate-700",children:a.render?a.render(t):String(t[a.key]??"")},String(a.key)))},t.id??i))})]})})}export{n as P,c as T};

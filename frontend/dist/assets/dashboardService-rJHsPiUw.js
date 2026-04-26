@@ -1,0 +1,1 @@
+import{a}from"./index-CVqzaGab.js";const r={getCEODashboard:async()=>(await a.get("/dashboard/ceo")).data,getManagerDashboard:async()=>(await a.get("/dashboard/manager")).data,getSalesDashboard:async()=>(await a.get("/dashboard/sales")).data};export{r as d};

@@ -1,10 +1,13 @@
 import { jsx as _jsx } from "react/jsx-runtime";
-import { LayoutDashboard, Users, Stethoscope, MessageSquare, Activity, } from 'lucide-react';
+import { LayoutDashboard, Users, Stethoscope, MessageSquare, Activity, CheckSquare, Briefcase, ShoppingCart, } from 'lucide-react';
 export const menuConfig = [
     {
         label: 'MAIN',
         items: [
             { label: 'Dashboard', path: '/', icon: _jsx(LayoutDashboard, { className: "w-5 h-5" }), roles: ['Admin', 'SalesManager', 'SalesMember'] },
+            { label: 'Tasks', path: '/tasks', icon: _jsx(CheckSquare, { className: "w-5 h-5" }), roles: ['Admin', 'SalesManager', 'SalesMember'] },
+            { label: 'Orders', path: '/orders', icon: _jsx(ShoppingCart, { className: "w-5 h-5" }), roles: ['Admin', 'SalesManager', 'SalesMember'] },
+            { label: 'Deals', path: '/deals', icon: _jsx(Briefcase, { className: "w-5 h-5" }), roles: ['Admin', 'SalesManager', 'SalesMember'] },
         ],
     },
     {
