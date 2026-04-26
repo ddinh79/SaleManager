@@ -14,6 +14,8 @@ public class AppDbContext : DbContext
     public DbSet<Deal> Deals => Set<Deal>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<NotificationDedup> NotificationDedups => Set<NotificationDedup>();
+    public DbSet<NotificationSettings> NotificationSettings => Set<NotificationSettings>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -75,6 +77,20 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<Doctor>()
             .HasIndex(d => d.CreatedAt);
+
+        // Notification -> User (many-to-one)
+        modelBuilder.Entity<Notification>()
+            .HasOne(n => n.User)
+            .WithMany()
+            .HasForeignKey(n => n.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // NotificationSettings -> User (one-to-one)
+        modelBuilder.Entity<NotificationSettings>()
+            .HasOne(ns => ns.User)
+            .WithMany()
+            .HasForeignKey(ns => ns.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         SeedData(modelBuilder);
     }
