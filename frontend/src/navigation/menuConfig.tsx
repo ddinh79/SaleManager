@@ -6,6 +6,7 @@ import {
   Activity,
   CheckSquare,
   Briefcase,
+  ShoppingCart,
 } from 'lucide-react';
 import type { UserRole } from '../types';
 
@@ -27,6 +28,7 @@ export const menuConfig: MenuSection[] = [
     items: [
       { label: 'Dashboard', path: '/', icon: <LayoutDashboard className="w-5 h-5" />, roles: ['Admin', 'SalesManager', 'SalesMember'] },
       { label: 'Tasks', path: '/tasks', icon: <CheckSquare className="w-5 h-5" />, roles: ['Admin', 'SalesManager', 'SalesMember'] },
+      { label: 'Orders', path: '/orders', icon: <ShoppingCart className="w-5 h-5" />, roles: ['Admin', 'SalesManager', 'SalesMember'] },
       { label: 'Deals', path: '/deals', icon: <Briefcase className="w-5 h-5" />, roles: ['Admin', 'SalesManager', 'SalesMember'] },
     ],
   },
