@@ -37,6 +37,9 @@ public class User
 
     public bool IsActive { get; set; } = true;
 
+    public decimal RevenueTarget { get; set; } = 0;
+    public int DealsTarget { get; set; } = 0;
+
     public ICollection<User> TeamMembers { get; set; } = new List<User>();
 
     public ICollection<Doctor> AssignedDoctors { get; set; } = new List<Doctor>();

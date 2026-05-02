@@ -125,14 +125,27 @@ public class DashboardService : IDashboardService
         }
 
         var endOfMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.DaysInMonth(DateTime.UtcNow.Year, DateTime.UtcNow.Month));
-        var dealsClosingThisMonth = activeDeals.Count(d => d.ExpectedCloseDate <= endOfMonth);
+        var dealsClosingSoonList = activeDeals
+            .Where(d => d.ExpectedCloseDate <= endOfMonth)
+            .OrderBy(d => d.ExpectedCloseDate)
+            .Select(d => new DealClosingSoonItem
+            {
+                DealId = d.Id,
+                DealName = d.Doctor?.Name ?? "",
+                TotalValue = d.TotalValue,
+                ExpectedCloseDate = d.ExpectedCloseDate,
+                SalesName = d.Sales?.FullName ?? "",
+                HospitalName = d.Doctor?.Hospital?.Name ?? ""
+            })
+            .ToList();
 
         return new ManagerDashboardResponse
         {
             TeamSize = teamSales.Count(),
             TeamPipelineValue = activeDeals.Sum(d => d.TotalValue),
             TeamWeightedForecast = activeDeals.Sum(d => d.TotalValue * d.Probability / 100.0m),
-            DealsClosingThisMonth = dealsClosingThisMonth,
+            DealsClosingSoon = dealsClosingSoonList,
+            DealsClosingSoonCount = dealsClosingSoonList.Count,
             InactiveSalesMembers = inactiveSalesList,
             TeamPerformance = teamPerformanceList
         };
@@ -140,6 +153,7 @@ public class DashboardService : IDashboardService
 
     public async Task<SalesDashboardResponse> GetSalesDashboardAsync(Guid salesId)
     {
+        var sales = await _userRepo.GetByIdAsync(salesId);
         var salesDeals = await _dealRepo.GetBySalesIdAsync(salesId);
         var activeDeals = salesDeals.Where(d => d.Stage != DealStage.WON && d.Stage != DealStage.LOST).ToList();
         var wonDeals = salesDeals.Where(d => d.Stage == DealStage.WON).ToList();
@@ -163,21 +177,49 @@ public class DashboardService : IDashboardService
             })
             .ToList();
 
+        // Calculate TasksToday and TasksOverdue from Doctor.NextFollowUpAt
+        var today = DateTime.UtcNow.Date;
+        var tomorrow = today.AddDays(1);
+        var assignedDoctors = await _context.Doctors
+            .Where(d => d.AssignedSalesId == salesId)
+            .ToListAsync();
+        var tasksToday = assignedDoctors.Count(d => d.NextFollowUpAt.HasValue && d.NextFollowUpAt.Value >= today && d.NextFollowUpAt.Value < tomorrow);
+        var tasksOverdue = assignedDoctors.Count(d => d.NextFollowUpAt.HasValue && d.NextFollowUpAt.Value < today);
+
+        // KPI targets from User entity with fallback defaults
+        var targetRevenue = sales?.RevenueTarget > 0 ? sales.RevenueTarget : 50000000m;
+        var targetDeals = sales?.DealsTarget > 0 ? sales.DealsTarget : 10;
+
+        // MyDealDetails - actual active deals with details
+        var myDealDetails = activeDeals
+            .Select(d => new MyDealItem
+            {
+                DealId = d.Id,
+                DoctorName = d.Doctor?.Name ?? "",
+                HospitalName = d.Doctor?.Hospital?.Name ?? "",
+                TotalValue = d.TotalValue,
+                Stage = d.Stage.ToString(),
+                ExpectedCloseDate = d.ExpectedCloseDate,
+                Probability = d.Probability
+            })
+            .ToList();
+
         return new SalesDashboardResponse
         {
             MyDeals = activeDeals.Count,
             MyPipelineValue = activeDeals.Sum(d => d.TotalValue),
             MyWeightedForecast = activeDeals.Sum(d => d.TotalValue * d.Probability / 100.0m),
-            TasksToday = 0,
-            TasksOverdue = 0,
+            TasksToday = tasksToday,
+            TasksOverdue = tasksOverdue,
             KpiProgress = new KpiProgressItem
             {
-                TargetRevenue = 100000000,
+                TargetRevenue = targetRevenue,
                 CurrentRevenue = myRevenue,
-                TargetDeals = 20,
+                TargetDeals = targetDeals,
                 WonDeals = wonDeals.Count
             },
-            RecentActivities = recentActivities
+            RecentActivities = recentActivities,
+            MyDealDetails = myDealDetails
         };
     }
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import dashboardService from '../services/dashboardService';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 interface CEODashboardData {
   totalRevenue: number;
@@ -9,13 +10,14 @@ interface CEODashboardData {
   totalDeals: number;
   wonDeals: number;
   activeDeals: number;
-  revenueBySales: Array<{ salesName: string; revenue: number }>;
+  revenueBySales: Array<{ salesName: string; revenue: number; dealsWon: number }>;
   topDoctors: Array<{ id: number; name: string; hospital: string; totalValue: number }>;
 }
 
 const CEODashboard: React.FC = () => {
   const [data, setData] = useState<CEODashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     dashboardService.getCEODashboard()
@@ -25,6 +27,7 @@ const CEODashboard: React.FC = () => {
       })
       .catch((err) => {
         console.error('Failed to load CEO dashboard:', err);
+        setError(err.message || 'Failed to load dashboard');
         setLoading(false);
       });
   }, []);
@@ -33,6 +36,14 @@ const CEODashboard: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-slate-500">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-red-500">{error}</div>
       </div>
     );
   }
@@ -82,22 +93,29 @@ const CEODashboard: React.FC = () => {
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Revenue by Sales */}
+        {/* Revenue by Sales Chart */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <h2 className="text-lg font-semibold text-slate-800 mb-4">Revenue by Sales</h2>
-          <div className="space-y-3">
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data.revenueBySales} layout="vertical" margin={{ left: 20, right: 30 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                <XAxis type="number" tickFormatter={(v) => `${(v / 1000000).toFixed(0)}M`} />
+                <YAxis type="category" dataKey="salesName" width={100} tick={{ fontSize: 12 }} />
+                <Tooltip formatter={(value) => formatCurrency(value as number)} />
+                <Bar dataKey="revenue" fill="#3b82f6" radius={[0, 4, 4, 0]}>
+                  {data.revenueBySales.map((_, index) => (
+                    <Cell key={index} fill={index === 0 ? '#1d4ed8' : '#3b82f6'} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-4 space-y-2">
             {data.revenueBySales.map((item, index) => (
-              <div key={index} className="flex items-center gap-4">
-                <div className="w-32 text-sm text-slate-700 truncate">{item.salesName}</div>
-                <div className="flex-1 bg-slate-100 rounded-full h-4 overflow-hidden">
-                  <div
-                    className="h-full bg-blue-500 rounded-full"
-                    style={{ width: `${Math.min((item.revenue / Math.max(...data.revenueBySales.map(i => i.revenue))) * 100, 100)}%` }}
-                  />
-                </div>
-                <div className="w-24 text-sm font-medium text-slate-700 text-right">
-                  {formatCurrency(item.revenue)}
-                </div>
+              <div key={index} className="flex items-center justify-between text-sm">
+                <span className="text-slate-600">{item.salesName}</span>
+                <span className="font-medium text-slate-700">{formatCurrency(item.revenue)}</span>
               </div>
             ))}
           </div>

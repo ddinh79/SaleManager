@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Bell, AlertCircle, RefreshCw } from 'lucide-react';
 import notificationService from '../services/notificationService';
 import { useNotificationStore } from '../store/notificationStore';
 
@@ -22,26 +23,53 @@ const PRIORITY_COLORS: Record<string, string> = {
   Low: 'bg-gray-100 text-gray-600',
 };
 
+const NotificationSkeleton = () => (
+  <div className="px-4 py-4 border-b border-slate-100 animate-pulse">
+    <div className="flex items-start gap-4">
+      <div className="w-16 h-5 bg-slate-200 rounded" />
+      <div className="flex-1">
+        <div className="h-4 bg-slate-200 rounded w-3/4 mb-2" />
+        <div className="h-3 bg-slate-200 rounded w-1/2 mb-2" />
+        <div className="h-3 bg-slate-200 rounded w-1/4" />
+      </div>
+    </div>
+  </div>
+);
+
 const NotificationsPage = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
   const pageSize = 20;
   const navigate = useNavigate();
+  const topRef = useRef<HTMLDivElement>(null);
   const { markAsRead, markAllAsRead } = useNotificationStore();
+
+  const loadNotifications = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
+    setError(null);
+    try {
+      const res = await notificationService.getNotifications(page, pageSize, filter === 'unread');
+      setNotifications(res.items);
+      setTotal(res.total);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load notifications');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     loadNotifications();
   }, [page, filter]);
 
-  const loadNotifications = async () => {
-    setLoading(true);
-    const res = await notificationService.getNotifications(page, pageSize, filter === 'unread');
-    setNotifications(res.items);
-    setTotal(res.total);
-    setLoading(false);
+  const handleFilterChange = (f: 'all' | 'unread') => {
+    setFilter(f);
+    setPage(1);
+    topRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const handleMarkAsRead = async (notification: Notification) => {
@@ -79,7 +107,7 @@ const NotificationsPage = () => {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-4xl mx-auto" ref={topRef}>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-slate-800">Notifications</h1>
         <button
@@ -95,7 +123,7 @@ const NotificationsPage = () => {
         {(['all', 'unread'] as const).map((f) => (
           <button
             key={f}
-            onClick={() => { setFilter(f); setPage(1); }}
+            onClick={() => handleFilterChange(f)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               filter === f
                 ? 'bg-indigo-600 text-white'
@@ -107,12 +135,35 @@ const NotificationsPage = () => {
         ))}
       </div>
 
+      {/* Error State */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+          <p className="text-sm text-red-700 flex-1">{error}</p>
+          <button
+            onClick={() => loadNotifications()}
+            className="p-1 hover:bg-red-100 rounded"
+          >
+            <RefreshCw className="w-4 h-4 text-red-500" />
+          </button>
+        </div>
+      )}
+
       {/* Notification List */}
       <div className="bg-white rounded-xl shadow border border-slate-200 overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-slate-500">Loading...</div>
+          <>
+            <NotificationSkeleton />
+            <NotificationSkeleton />
+            <NotificationSkeleton />
+          </>
         ) : notifications.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">No notifications</div>
+          <div className="p-8 text-center">
+            <Bell className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+            <p className="text-slate-500">
+              {filter === 'unread' ? 'No unread notifications' : 'No notifications'}
+            </p>
+          </div>
         ) : (
           <>
             {notifications.map((notification) => (
@@ -148,24 +199,29 @@ const NotificationsPage = () => {
 
       {/* Pagination */}
       {total > pageSize && (
-        <div className="flex items-center justify-center gap-2 mt-6">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="px-3 py-1.5 text-sm bg-slate-100 rounded disabled:opacity-50"
-          >
-            Previous
-          </button>
+        <div className="flex items-center justify-center gap-4 mt-6">
           <span className="text-sm text-slate-500">
-            Page {page} of {Math.ceil(total / pageSize)}
+            Showing {((page - 1) * pageSize) + 1}-{Math.min(page * pageSize, total)} of {total}
           </span>
-          <button
-            onClick={() => setPage((p) => p + 1)}
-            disabled={page * pageSize >= total}
-            className="px-3 py-1.5 text-sm bg-slate-100 rounded disabled:opacity-50"
-          >
-            Next
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => { setPage((p) => Math.max(1, p - 1)); topRef.current?.scrollIntoView({ behavior: 'smooth' }); }}
+              disabled={page === 1}
+              className="px-3 py-1.5 text-sm bg-slate-100 rounded disabled:opacity-50 hover:bg-slate-200"
+            >
+              Previous
+            </button>
+            <span className="text-sm text-slate-600">
+              Page {page} of {Math.ceil(total / pageSize)}
+            </span>
+            <button
+              onClick={() => { setPage((p) => p + 1); topRef.current?.scrollIntoView({ behavior: 'smooth' }); }}
+              disabled={page * pageSize >= total}
+              className="px-3 py-1.5 text-sm bg-slate-100 rounded disabled:opacity-50 hover:bg-slate-200"
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
     </div>

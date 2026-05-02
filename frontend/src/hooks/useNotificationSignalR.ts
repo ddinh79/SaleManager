@@ -7,7 +7,7 @@ import notificationService from '../services/notificationService';
 const HUB_URL = 'http://localhost:5001/hubs/notifications';
 
 export const useNotificationSignalR = () => {
-  const { addNotification, setUnreadCount } = useNotificationStore();
+  const { addNotification, setUnreadCount, setConnectionStatus } = useNotificationStore();
   const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
@@ -29,25 +29,32 @@ export const useNotificationSignalR = () => {
     });
 
     connection.onreconnecting(() => {
-      console.log('Notification SignalR reconnecting...');
+      setConnectionStatus(false);
     });
 
     connection.onreconnected(() => {
-      console.log('Notification SignalR reconnected');
+      setConnectionStatus(true);
+    });
+
+    connection.onclose(() => {
+      setConnectionStatus(false);
     });
 
     connection.start()
       .then(() => {
+        setConnectionStatus(true);
         connection.invoke('JoinUserGroup').catch(console.error);
         notificationService.getUnreadCount().then((res) => {
           setUnreadCount(res.count);
         });
       })
-      .catch(console.error);
+      .catch(() => {
+        setConnectionStatus(false);
+      });
 
     return () => {
       connection.invoke('LeaveUserGroup').catch(console.error);
       connection.stop().catch(console.error);
     };
-  }, [user?.id, addNotification, setUnreadCount]);
+  }, [user?.id, addNotification, setUnreadCount, setConnectionStatus]);
 };

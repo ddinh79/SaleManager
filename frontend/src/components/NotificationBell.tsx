@@ -1,10 +1,11 @@
-import { Bell } from 'lucide-react';
+import { Bell, Wifi, WifiOff } from 'lucide-react';
 import { useNotificationStore } from '../store/notificationStore';
 import NotificationDropdown from './NotificationDropdown';
 import { useState, useRef, useEffect } from 'react';
 
 const NotificationBell = () => {
   const unreadCount = useNotificationStore((state) => state.unreadCount);
+  const isConnected = useNotificationStore((state) => state.isConnected);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -31,8 +32,18 @@ const NotificationBell = () => {
           </span>
         )}
       </button>
+
+      {/* Connection status indicator */}
+      <div className="absolute -bottom-0.5 -right-0.5">
+        {isConnected ? (
+          <Wifi className="w-3 h-3 text-green-500" />
+        ) : (
+          <WifiOff className="w-3 h-3 text-red-500" />
+        )}
+      </div>
+
       {showDropdown && (
-        <NotificationDropdown onClose={() => setShowDropdown(false)} />
+        <NotificationDropdown onClose={() => setShowDropdown(false)} isOpen={showDropdown} />
       )}
     </div>
   );

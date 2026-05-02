@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AlertCircle, RefreshCw, Bell } from 'lucide-react';
 import notificationService from '../services/notificationService';
 import { useNotificationStore } from '../store/notificationStore';
 
@@ -17,6 +18,7 @@ interface Notification {
 
 interface Props {
   onClose: () => void;
+  isOpen: boolean;
 }
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -26,18 +28,43 @@ const PRIORITY_COLORS: Record<string, string> = {
   Low: 'bg-gray-100 text-gray-600',
 };
 
-const NotificationDropdown: React.FC<Props> = ({ onClose }) => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-  const { markAsRead, markAllAsRead } = useNotificationStore();
+const DropdownSkeleton = () => (
+  <div className="p-4 space-y-3">
+    {[1, 2, 3].map((i) => (
+      <div key={i} className="flex items-start gap-3 animate-pulse">
+        <div className="w-12 h-4 bg-slate-200 rounded" />
+        <div className="flex-1">
+          <div className="h-4 bg-slate-200 rounded w-3/4 mb-1" />
+          <div className="h-3 bg-slate-200 rounded w-1/2" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
 
+const NotificationDropdown: React.FC<Props> = ({ onClose, isOpen }) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const storeNotifications = useNotificationStore((state) => state.notifications);
+  const { markAsRead, markAllAsRead, setNotifications } = useNotificationStore();
+
+  // Refetch when dropdown opens
   useEffect(() => {
-    notificationService.getNotifications(1, 5, false).then((res) => {
-      setNotifications(res.items);
-      setLoading(false);
-    });
-  }, []);
+    if (isOpen) {
+      setLoading(true);
+      setError(null);
+      notificationService.getNotifications(1, 20, false)
+        .then((res) => {
+          setNotifications(res.items);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError(err instanceof Error ? err.message : 'Failed to load');
+          setLoading(false);
+        });
+    }
+  }, [isOpen, setNotifications]);
 
   const handleNotificationClick = async (notification: Notification) => {
     if (!notification.isRead) {
@@ -51,6 +78,8 @@ const NotificationDropdown: React.FC<Props> = ({ onClose }) => {
       navigate(`/doctors/${notification.referenceId}`);
     } else if (notification.referenceType === 'User' && notification.referenceId) {
       navigate(`/users/${notification.referenceId}`);
+    } else {
+      navigate('/notifications');
     }
 
     onClose();
@@ -59,7 +88,6 @@ const NotificationDropdown: React.FC<Props> = ({ onClose }) => {
   const handleMarkAllRead = async () => {
     await notificationService.markAllAsRead();
     markAllAsRead();
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
   };
 
   const formatTime = (dateStr: string) => {
@@ -89,12 +117,23 @@ const NotificationDropdown: React.FC<Props> = ({ onClose }) => {
       </div>
 
       <div className="max-h-96 overflow-y-auto">
-        {loading ? (
-          <div className="p-4 text-center text-slate-500 text-sm">Loading...</div>
-        ) : notifications.length === 0 ? (
-          <div className="p-4 text-center text-slate-500 text-sm">No notifications</div>
+        {error ? (
+          <div className="p-4 flex items-center gap-2 text-red-600">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span className="text-sm flex-1">{error}</span>
+            <button onClick={() => setLoading(true)} className="p-1 hover:bg-red-50 rounded">
+              <RefreshCw className="w-4 h-4" />
+            </button>
+          </div>
+        ) : loading ? (
+          <DropdownSkeleton />
+        ) : storeNotifications.length === 0 ? (
+          <div className="p-4 text-center">
+            <Bell className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+            <p className="text-sm text-slate-500">No notifications</p>
+          </div>
         ) : (
-          notifications.map((notification) => (
+          storeNotifications.slice(0, 10).map((notification) => (
             <div
               key={notification.id}
               onClick={() => handleNotificationClick(notification)}
@@ -102,7 +141,7 @@ const NotificationDropdown: React.FC<Props> = ({ onClose }) => {
             >
               <div className="flex items-start gap-3">
                 <span className={`mt-0.5 px-2 py-0.5 rounded text-xs font-medium ${PRIORITY_COLORS[notification.priority] || PRIORITY_COLORS.Normal}`}>
-                  {notification.priority.toUpperCase()}
+                  {notification.priority?.toUpperCase() || 'NORMAL'}
                 </span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-slate-800 truncate">{notification.title}</p>

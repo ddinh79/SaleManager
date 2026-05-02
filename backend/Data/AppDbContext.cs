@@ -85,6 +85,24 @@ public class AppDbContext : DbContext
             .HasForeignKey(n => n.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Notification indexes for query performance
+        modelBuilder.Entity<Notification>()
+            .HasIndex(n => n.UserId);
+
+        modelBuilder.Entity<Notification>()
+            .HasIndex(n => n.IsRead);
+
+        modelBuilder.Entity<Notification>()
+            .HasIndex(n => n.CreatedAt);
+
+        // Composite index for common query: user + unread + date
+        modelBuilder.Entity<Notification>()
+            .HasIndex(n => new { n.UserId, n.IsRead, n.CreatedAt });
+
+        // NotificationDedup index (non-unique now, for dedup lookups)
+        modelBuilder.Entity<NotificationDedup>()
+            .HasIndex(d => new { d.UserId, d.Type, d.Date });
+
         // NotificationSettings -> User (one-to-one)
         modelBuilder.Entity<NotificationSettings>()
             .HasOne(ns => ns.User)

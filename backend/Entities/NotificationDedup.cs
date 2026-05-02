@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SalesSystem.Entities;
 
-[Index(nameof(UserId), nameof(Type), nameof(Date), IsUnique = true)]
+[Index(nameof(UserId), nameof(Type), nameof(Date))]
 public class NotificationDedup
 {
     [Key]

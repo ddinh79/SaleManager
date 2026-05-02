@@ -33,12 +33,23 @@ public class RevenueBySalesItem
 
 // ============ Manager Dashboard ============
 
+public class DealClosingSoonItem
+{
+    public Guid DealId { get; set; }
+    public string DealName { get; set; } = string.Empty;
+    public decimal TotalValue { get; set; }
+    public DateTime ExpectedCloseDate { get; set; }
+    public string SalesName { get; set; } = string.Empty;
+    public string HospitalName { get; set; } = string.Empty;
+}
+
 public class ManagerDashboardResponse
 {
     public int TeamSize { get; set; }
     public decimal TeamPipelineValue { get; set; }
     public decimal TeamWeightedForecast { get; set; }
-    public int DealsClosingThisMonth { get; set; }
+    public List<DealClosingSoonItem> DealsClosingSoon { get; set; } = new();
+    public int DealsClosingSoonCount { get; set; }
     public List<InactiveSalesItem> InactiveSalesMembers { get; set; } = new();
     public List<TeamPerformanceItem> TeamPerformance { get; set; } = new();
 }
@@ -62,6 +73,17 @@ public class TeamPerformanceItem
 
 // ============ Sales Dashboard ============
 
+public class MyDealItem
+{
+    public Guid DealId { get; set; }
+    public string DoctorName { get; set; } = string.Empty;
+    public string HospitalName { get; set; } = string.Empty;
+    public decimal TotalValue { get; set; }
+    public string Stage { get; set; } = string.Empty;
+    public DateTime ExpectedCloseDate { get; set; }
+    public int Probability { get; set; }
+}
+
 public class SalesDashboardResponse
 {
     public int MyDeals { get; set; }
@@ -71,6 +93,7 @@ public class SalesDashboardResponse
     public int TasksOverdue { get; set; }
     public KpiProgressItem KpiProgress { get; set; } = new();
     public List<RecentActivityItem> RecentActivities { get; set; } = new();
+    public List<MyDealItem> MyDealDetails { get; set; } = new();
 }
 
 public class KpiProgressItem

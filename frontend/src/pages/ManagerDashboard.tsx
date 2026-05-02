@@ -5,7 +5,15 @@ interface ManagerDashboardData {
   teamSize: number;
   teamPipelineValue: number;
   teamWeightedForecast: number;
-  dealsClosingThisMonth: number;
+  dealsClosingSoonCount: number;
+  dealsClosingSoon: Array<{
+    dealId: number;
+    dealName: string;
+    totalValue: number;
+    expectedCloseDate: string;
+    salesName: string;
+    hospitalName: string;
+  }>;
   inactiveSalesMembers: Array<{
     id: number;
     name: string;
@@ -24,15 +32,17 @@ interface ManagerDashboardData {
 const ManagerDashboard: React.FC = () => {
   const [data, setData] = useState<ManagerDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     dashboardService.getManagerDashboard()
-      .then((res) => {
-        setData(res.data);
+      .then((data) => {
+        setData(data);
         setLoading(false);
       })
       .catch((err) => {
         console.error('Failed to load manager dashboard:', err);
+        setError(err.message || 'Failed to load dashboard');
         setLoading(false);
       });
   }, []);
@@ -41,6 +51,14 @@ const ManagerDashboard: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-slate-500">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-red-500">{error}</div>
       </div>
     );
   }
@@ -84,8 +102,39 @@ const ManagerDashboard: React.FC = () => {
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
           <div className="text-sm text-slate-500 mb-1">Closing This Month</div>
-          <div className="text-2xl font-bold text-slate-800">{data.dealsClosingThisMonth}</div>
+          <div className="text-2xl font-bold text-slate-800">{data.dealsClosingSoonCount}</div>
         </div>
+      </div>
+
+      {/* Inactive Sales Members */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <h2 className="text-lg font-semibold text-slate-800 mb-4">Deals Closing Soon</h2>
+        {data.dealsClosingSoon.length === 0 ? (
+          <div className="text-slate-500">No deals closing this month</div>
+        ) : (
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-slate-200">
+                <th className="text-left py-3 text-sm font-medium text-slate-600">Doctor</th>
+                <th className="text-left py-3 text-sm font-medium text-slate-600">Hospital</th>
+                <th className="text-left py-3 text-sm font-medium text-slate-600">Expected Close</th>
+                <th className="text-right py-3 text-sm font-medium text-slate-600">Value</th>
+                <th className="text-left py-3 text-sm font-medium text-slate-600">Sales</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.dealsClosingSoon.map((deal) => (
+                <tr key={deal.dealId} className="border-b border-slate-100">
+                  <td className="py-3 text-slate-700">{deal.dealName}</td>
+                  <td className="py-3 text-slate-700">{deal.hospitalName}</td>
+                  <td className="py-3 text-slate-700">{new Date(deal.expectedCloseDate).toLocaleDateString()}</td>
+                  <td className="py-3 text-right text-slate-700">{formatCurrency(deal.totalValue)}</td>
+                  <td className="py-3 text-slate-700">{deal.salesName}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {/* Inactive Sales Members */}

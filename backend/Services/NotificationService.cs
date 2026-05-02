@@ -192,4 +192,66 @@ public class NotificationService : INotificationService
             await _context.SaveChangesAsync();
         }
     }
+
+    public async Task<bool> TryCreateNotificationAsync(Guid userId, NotificationType type, string title, string message, Guid? referenceId, string? referenceType, NotificationPriority priority)
+    {
+        var today = DateTime.UtcNow.Date;
+
+        // Check if dedup entry already exists
+        var exists = await _context.NotificationDedups
+            .AnyAsync(d => d.UserId == userId && d.Type == type && d.Date == today);
+
+        if (exists) return false;
+
+        var notification = new Notification
+        {
+            UserId = userId,
+            Type = type,
+            Title = title,
+            Message = message,
+            ReferenceId = referenceId,
+            ReferenceType = referenceType,
+            Priority = priority
+        };
+
+        _context.Notifications.Add(notification);
+
+        var dedup = new NotificationDedup
+        {
+            UserId = userId,
+            Type = type,
+            Date = today
+        };
+        _context.NotificationDedups.Add(dedup);
+
+        // Save both in single transaction
+        await _context.SaveChangesAsync();
+
+        // Push via SignalR (fire-and-forget, don't fail the notification creation if SignalR is down)
+        try
+        {
+            var response = new NotificationResponse
+            {
+                Id = notification.Id,
+                Type = notification.Type.ToString(),
+                Title = notification.Title,
+                Message = notification.Message,
+                ReferenceId = notification.ReferenceId,
+                ReferenceType = notification.ReferenceType,
+                IsRead = false,
+                Priority = notification.Priority.ToString(),
+                CreatedAt = notification.CreatedAt
+            };
+
+            await _hubContext.SendToUser(userId, "ReceiveNotification", response);
+            var unreadCount = await GetUnreadCountAsync(userId);
+            await _hubContext.SendToUser(userId, "UpdateUnreadCount", unreadCount);
+        }
+        catch (Exception)
+        {
+            // SignalR failure shouldn't rollback notification creation
+        }
+
+        return true;
+    }
 }

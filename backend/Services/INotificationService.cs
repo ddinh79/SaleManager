@@ -15,4 +15,10 @@ public interface INotificationService
     Task<bool> ShouldCreateNotificationAsync(Guid userId, NotificationType type);
     Task CreateDedupEntryAsync(Guid userId, NotificationType type);
     Task EnsureSettingsExistAsync(Guid userId);
+
+    /// <summary>
+    /// Atomically creates a notification with dedup check to prevent race condition duplicates.
+    /// Returns true if notification was created, false if dedup prevented it.
+    /// </summary>
+    Task<bool> TryCreateNotificationAsync(Guid userId, NotificationType type, string title, string message, Guid? referenceId, string? referenceType, NotificationPriority priority);
 }

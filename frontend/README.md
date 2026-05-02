@@ -7,7 +7,7 @@
 3. Run: npm install
 4. Run: npm run dev
 
-Frontend available at http://localhost:3000
+Frontend available at http://localhost:3100
 
 ## Tech Stack
 
