@@ -1,0 +1,1 @@
+import{d as a}from"./index-BlpL1su_.js";const r={getCEODashboard:async()=>(await a.get("/dashboard/ceo")).data,getManagerDashboard:async()=>(await a.get("/dashboard/manager")).data,getSalesDashboard:async()=>(await a.get("/dashboard/sales")).data};export{r as d};

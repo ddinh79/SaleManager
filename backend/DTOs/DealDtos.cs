@@ -26,6 +26,22 @@ public class UpdateDealRequest
 public class UpdateStageRequest
 {
     public DealStage Stage { get; set; }
+
+    /// <summary>
+    /// Expected version for optimistic concurrency check.
+    /// If provided and doesn't match current version, throws ConcurrencyException.
+    /// </summary>
+    public int ExpectedVersion { get; set; }
+
+    /// <summary>
+    /// Required when moving to LOST stage.
+    /// </summary>
+    public LostReason? LostReason { get; set; }
+
+    /// <summary>
+    /// Optional notes when marking as LOST.
+    /// </summary>
+    public string? LostNotes { get; set; }
 }
 
 // ============ Responses ============
@@ -45,13 +61,37 @@ public class DealResponse
     public int Probability { get; set; }
     public DateTime? ExpectedCloseDate { get; set; }
     public string? Notes { get; set; }
+    public int Position { get; set; }
+    public int Version { get; set; }
+    public string? LostReason { get; set; }
+    public string? LostNotes { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }
 
+/// <summary>
+/// Per-stage metrics for pipeline columns.
+/// </summary>
+public class StageMetric
+{
+    public int Count { get; set; }
+    public decimal TotalValue { get; set; }
+}
+
+/// <summary>
+/// Pipeline response with deals grouped by stage and column metrics.
+/// </summary>
 public class PipelineResponse
 {
+    /// <summary>
+    /// Deals grouped by stage name.
+    /// </summary>
     public Dictionary<string, List<DealResponse>> Stages { get; set; } = new();
+
+    /// <summary>
+    /// Aggregated metrics per stage (count, total value).
+    /// </summary>
+    public Dictionary<string, StageMetric> Metrics { get; set; } = new();
 }
 
 public class ForecastStageItem

@@ -1,7 +1,9 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using SalesSystem.DTOs;
+using SalesSystem.Hubs;
 using SalesSystem.Services;
 
 namespace SalesSystem.Controllers;
@@ -12,10 +14,12 @@ namespace SalesSystem.Controllers;
 public class DealsController : ControllerBase
 {
     private readonly IDealService _dealService;
+    private readonly IHubContext<DealHub> _dealHubContext;
 
-    public DealsController(IDealService dealService)
+    public DealsController(IDealService dealService, IHubContext<DealHub> dealHubContext)
     {
         _dealService = dealService;
+        _dealHubContext = dealHubContext;
     }
 
     private Guid GetCurrentUserId() => Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
@@ -79,11 +83,11 @@ public class DealsController : ControllerBase
     }
 
     [HttpGet("pipeline")]
-    public async Task<ActionResult<PipelineResponse>> GetPipeline([FromQuery] Guid? managerId)
+    public async Task<ActionResult<PipelineResponse>> GetPipeline([FromQuery] int limit = 50)
     {
         var role = GetCurrentUserRole();
         var userId = GetCurrentUserId();
-        var result = await _dealService.GetPipelineAsync(managerId, role, userId);
+        var result = await _dealService.GetPipelineAsync(null, role, userId, limit);
         return Ok(result);
     }
 
@@ -104,6 +108,25 @@ public class DealsController : ControllerBase
             var deal = await _dealService.UpdateStageAsync(id, request, salesId, role);
             if (deal == null) return NotFound();
             return Ok(deal);
+        }
+        catch (InvalidOperationException ex)
+        {
+            if (ex.Message.StartsWith("CONCURRENCY_CONFLICT"))
+                return Conflict(ex.Message);
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpPost("{id}/rebalance")]
+    public async Task<ActionResult> RebalanceStage(Guid id, [FromQuery] string stage)
+    {
+        try
+        {
+            if (!Enum.TryParse<Entities.DealStage>(stage, out var dealStage))
+                return BadRequest("Invalid stage");
+
+            await _dealService.RebalanceStageAsync(dealStage);
+            return NoContent();
         }
         catch (InvalidOperationException ex)
         {

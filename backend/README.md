@@ -8,7 +8,7 @@
 4. Run: dotnet build
 5. Run: dotnet run
 
-API will be available at http://localhost:5001
+API will be available at http://localhost:5100
 
 ## Seed Data
 

@@ -164,7 +164,7 @@ public class KpiService : IKpiService
             var monthOrders = orders.Where(o => o.CreatedAt >= monthStart && o.CreatedAt < monthEnd).ToList();
 
             var revenue = monthOrders.Where(o => o.Status == OrderStatus.COMPLETED).Sum(o => o.TotalValue);
-            var avgDealSize = monthDeals.Any() ? monthDeals.Average(d => d.Value) : 0;
+            var avgDealSize = monthDeals.Any() ? monthDeals.Average(d => d.TotalValue) : 0;
 
             result.Add(new MonthlyKpiResponse
             {

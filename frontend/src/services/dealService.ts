@@ -6,6 +6,8 @@ import {
   UpdateStageRequest,
   PipelineResponse,
   ForecastResponse,
+  DealStage,
+  LostReason,
 } from '../types';
 
 export const dealService = {
@@ -28,8 +30,8 @@ export const dealService = {
     await api.delete(`/deals/${id}`);
   },
 
-  getPipeline: async (): Promise<PipelineResponse> => {
-    const response = await api.get('/deals/pipeline');
+  getPipeline: async (limit = 50): Promise<PipelineResponse> => {
+    const response = await api.get('/deals/pipeline', { params: { limit } });
     return response.data;
   },
 
@@ -38,8 +40,35 @@ export const dealService = {
     return response.data;
   },
 
-  updateStage: async (id: string, stage: string): Promise<Deal> => {
-    const response = await api.put(`/deals/${id}/stage`, { stage });
+  /**
+   * Update deal stage with full business logic.
+   * @param id - Deal ID
+   * @param stage - New stage
+   * @param expectedVersion - Optional version for concurrency check
+   * @param lostReason - Required when moving to LOST stage
+   * @param lostNotes - Optional notes for LOST reason
+   */
+  updateStage: async (
+    id: string,
+    stage: DealStage,
+    expectedVersion?: number,
+    lostReason?: LostReason,
+    lostNotes?: string
+  ): Promise<Deal> => {
+    const response = await api.put(`/deals/${id}/stage`, {
+      stage,
+      expectedVersion,
+      lostReason,
+      lostNotes,
+    });
     return response.data;
+  },
+
+  /**
+   * Rebalance positions within a stage column.
+   * Used when gaps become too small.
+   */
+  rebalanceStage: async (stage: DealStage): Promise<void> => {
+    await api.post(`/deals/${'rebalance'}`, null, { params: { stage } });
   },
 };

@@ -100,6 +100,8 @@ builder.Services.AddHostedService<NotificationBackgroundService>();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<INotificationHubContext, NotificationHubContext>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddHttpContextAccessor(); // Required for DealHub
+builder.Services.AddScoped<DealHub>();
 
 var app = builder.Build();
 
@@ -125,8 +127,9 @@ app.UseJwtMiddleware();
 
 app.MapControllers();
 app.MapHub<NotificationHub>("/hubs/notifications");
+app.MapHub<DealHub>("/hubs/deals");
 
-var urls = builder.Configuration["urls"] ?? "http://localhost:5000";
+var urls = builder.Configuration["urls"] ?? "http://localhost:5100";
 app.Urls.Add(urls);
 
 app.Run();

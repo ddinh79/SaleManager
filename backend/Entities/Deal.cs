@@ -36,6 +36,16 @@ public class Deal
     [MaxLength(1000)]
     public string? Notes { get; set; }
 
+    // Gap-based position for ordering within stage column
+    public int Position { get; set; } = 0;
+
+    // Concurrency token
+    public int Version { get; set; } = 0;
+
+    // Lost reason (required when stage = LOST)
+    public string? LostReason { get; set; }
+    public string? LostNotes { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 

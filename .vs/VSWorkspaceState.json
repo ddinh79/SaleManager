@@ -1,6 +1,16 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\backend",
+    "\\backend\\obj",
+    "\\backend\\Properties",
+    "\\backend\\Repositories",
+    "\\backend\\Services",
+    "\\docs",
+    "\\docs\\superpowers",
+    "\\docs\\superpowers\\plans",
+    "\\docs\\superpowers\\specs"
   ],
+  "SelectedNode": "\\backend\\appsettings.json",
   "PreviewInSolutionExplorer": false
 }

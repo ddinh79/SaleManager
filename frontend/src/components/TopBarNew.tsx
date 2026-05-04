@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react';
+import { Search, LogOut } from 'lucide-react';
 import { Breadcrumb } from '../navigation/breadcrumb';
 import { useUiStore } from '../store/uiStore';
 import { useAuthStore } from '../store/authStore';
@@ -8,6 +8,7 @@ import { useNotificationSignalR } from '../hooks/useNotificationSignalR';
 export const TopBarNew: React.FC = () => {
   const openSearchModal = useUiStore((state) => state.openSearchModal);
   const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
 
   useNotificationSignalR();
 
@@ -24,7 +25,7 @@ export const TopBarNew: React.FC = () => {
           <span className="text-xs text-slate-400">Ctrl+K</span>
         </button>
         <NotificationBell />
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center">
             <span className="text-sm font-medium text-white">
               {user?.fullName?.charAt(0).toUpperCase() ?? 'U'}
@@ -34,6 +35,13 @@ export const TopBarNew: React.FC = () => {
             <p className="text-sm font-medium text-slate-700">{user?.fullName ?? 'User'}</p>
             <p className="text-xs text-slate-500">{user?.role ?? ''}</p>
           </div>
+          <button
+            onClick={logout}
+            className="p-2 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"
+            title="Logout"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </header>

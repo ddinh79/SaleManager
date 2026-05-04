@@ -77,6 +77,7 @@ export interface CreateHospitalRequest {
 // Deal types
 export type DealStage = 'NEW' | 'IN_PROGRESS' | 'NEGOTIATION' | 'WON' | 'LOST';
 export type ProductType = 'SILICONE' | 'CREAM';
+export type LostReason = 'COMPETITOR' | 'BUDGET' | 'TIMELINE' | 'NO_RESPONSE' | 'PRODUCT_MISMATCH' | 'OTHER';
 
 export interface Deal {
   id: string;
@@ -92,6 +93,10 @@ export interface Deal {
   probability: number;
   expectedCloseDate: string | null;
   notes: string | null;
+  position: number;
+  version: number;
+  lostReason?: LostReason;
+  lostNotes?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -115,10 +120,19 @@ export interface UpdateDealRequest {
 
 export interface UpdateStageRequest {
   stage: DealStage;
+  expectedVersion?: number;
+  lostReason?: LostReason;
+  lostNotes?: string;
+}
+
+export interface StageMetric {
+  count: number;
+  totalValue: number;
 }
 
 export interface PipelineResponse {
   stages: Record<DealStage, Deal[]>;
+  metrics: Record<DealStage, StageMetric>;
 }
 
 export interface ForecastStageItem {

@@ -13,7 +13,8 @@ public enum ActivityType
     MESSAGE,
     MEETING,
     DEMO,
-    SAMPLE_SENT
+    SAMPLE_SENT,
+    DEAL_STAGE_CHANGED
 }
 
 public enum ActivityResult
@@ -30,6 +31,16 @@ public enum DealStage
     NEGOTIATION,
     WON,
     LOST
+}
+
+public enum LostReason
+{
+    COMPETITOR,
+    BUDGET,
+    TIMELINE,
+    NO_RESPONSE,
+    PRODUCT_MISMATCH,
+    OTHER
 }
 
 public enum ProductType

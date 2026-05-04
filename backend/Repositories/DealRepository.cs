@@ -17,30 +17,71 @@ public class DealRepository : Repository<Deal>, IDealRepository
             .FirstOrDefaultAsync(d => d.Id == id);
     }
 
-    public async Task<IEnumerable<Deal>> GetBySalesIdAsync(Guid salesId)
+    public async Task<IEnumerable<Deal>> GetBySalesIdAsync(Guid salesId, int limit = 50, int offset = 0)
     {
         return await _dbSet
             .Include(d => d.Doctor)
             .Where(d => d.SalesId == salesId)
-            .OrderByDescending(d => d.CreatedAt)
+            .OrderBy(d => d.Position)
+            .Skip(offset)
+            .Take(limit)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Deal>> GetByTeamSalesIdsAsync(IEnumerable<Guid> salesIds)
+    public async Task<IEnumerable<Deal>> GetByTeamSalesIdsAsync(IEnumerable<Guid> salesIds, int limit = 50, int offset = 0)
     {
         return await _dbSet
             .Include(d => d.Doctor)
             .Where(d => salesIds.Contains(d.SalesId))
-            .OrderByDescending(d => d.CreatedAt)
+            .OrderBy(d => d.Position)
+            .Skip(offset)
+            .Take(limit)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Deal>> GetAllWithDetailsAsync()
+    public async Task<IEnumerable<Deal>> GetAllWithDetailsAsync(int limit = 50, int offset = 0)
     {
         return await _dbSet
             .Include(d => d.Doctor)
             .Include(d => d.Sales)
-            .OrderByDescending(d => d.CreatedAt)
+            .OrderBy(d => d.Position)
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync();
+    }
+
+    public async Task<int> GetCountBySalesIdAsync(Guid salesId)
+    {
+        return await _dbSet.CountAsync(d => d.SalesId == salesId);
+    }
+
+    public async Task<int> GetCountByTeamSalesIdsAsync(IEnumerable<Guid> salesIds)
+    {
+        return await _dbSet.CountAsync(d => salesIds.Contains(d.SalesId));
+    }
+
+    public async Task<int> GetCountAllAsync()
+    {
+        return await _dbSet.CountAsync();
+    }
+
+    public async Task<int> GetMaxPositionInStageAsync(DealStage stage)
+    {
+        var max = await _dbSet
+            .Where(d => d.Stage == stage)
+            .MaxAsync(d => (int?)d.Position) ?? 0;
+        return max;
+    }
+
+    public async Task<List<Deal>> GetByStageAsync(DealStage stage, int limit = 50, int offset = 0)
+    {
+        return await _dbSet
+            .Include(d => d.Doctor)
+            .Include(d => d.Sales)
+            .Where(d => d.Stage == stage)
+            .OrderBy(d => d.Position)
+            .Skip(offset)
+            .Take(limit)
             .ToListAsync();
     }
 }

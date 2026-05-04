@@ -6,6 +6,14 @@ import { useAuthStore } from '../store/authStore';
 import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
 import { Card } from '../components/common/Card';
+const getDashboardRoute = (role) => {
+    switch (role) {
+        case 'Admin': return '/dashboard/ceo';
+        case 'SalesManager': return '/dashboard/manager';
+        case 'SalesMember': return '/dashboard/sales';
+        default: return '/unauthorized';
+    }
+};
 export const Login = () => {
     const navigate = useNavigate();
     const login = useAuthStore((state) => state.login);
@@ -21,8 +29,8 @@ export const Login = () => {
         setError('');
         try {
             const response = await authService.login(formData);
-            login(response.token, response.user);
-            navigate('/');
+            login(response.data.token, response.data.user);
+            navigate(getDashboardRoute(response.data.user.role));
         }
         catch (err) {
             setError('Invalid username or password');
