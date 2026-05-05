@@ -20,6 +20,11 @@ public class AppDbContext : DbContext
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<NotificationDedup> NotificationDedups => Set<NotificationDedup>();
     public DbSet<NotificationSettings> NotificationSettings => Set<NotificationSettings>();
+    public DbSet<TranslationKey> TranslationKeys => Set<TranslationKey>();
+    public DbSet<Translation> Translations => Set<Translation>();
+    public DbSet<I18nVersion> I18nVersions => Set<I18nVersion>();
+    public DbSet<TranslationAuditLog> TranslationAuditLogs => Set<TranslationAuditLog>();
+    public DbSet<TranslationMissingLog> TranslationMissingLogs => Set<TranslationMissingLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -141,6 +146,36 @@ public class AppDbContext : DbContext
             .WithOne()
             .HasForeignKey<UserPlanMetrics>(m => m.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // TranslationKey configuration
+        modelBuilder.Entity<TranslationKey>(entity =>
+        {
+            entity.HasIndex(e => e.Key).IsUnique();
+            entity.HasIndex(e => e.Category);
+        });
+
+        // Translation configuration
+        modelBuilder.Entity<Translation>(entity =>
+        {
+            entity.HasIndex(e => new { e.TranslationKeyId, e.Locale }).IsUnique();
+
+            entity.HasOne(t => t.TranslationKey)
+                .WithMany(tk => tk.Translations)
+                .HasForeignKey(t => t.TranslationKeyId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // I18nVersion configuration
+        modelBuilder.Entity<I18nVersion>(entity =>
+        {
+            entity.HasKey(e => e.Locale);
+        });
+
+        // TranslationAuditLog configuration
+        modelBuilder.Entity<TranslationAuditLog>(entity =>
+        {
+            entity.HasIndex(e => e.CreatedAt);
+        });
 
         SeedData(modelBuilder);
     }
