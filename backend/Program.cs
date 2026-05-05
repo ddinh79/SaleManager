@@ -103,6 +103,13 @@ builder.Services.AddScoped<ActivityMatcher>();
 builder.Services.AddScoped<AntiGamingMonitor>();
 builder.Services.AddScoped<IDailyPlanService, DailyPlanService>();
 
+// i18n Translation services
+builder.Services.AddScoped<ITranslationRepository, TranslationRepository>();
+builder.Services.AddScoped<ITranslationService, TranslationService>();
+
+// Translation cache - in-memory only (Redis optional, falls back automatically)
+builder.Services.AddSingleton<ITranslationCache>(sp => new HybridTranslationCache(null));
+
 // Background services
 builder.Services.AddHostedService<NotificationBackgroundService>();
 
@@ -154,6 +161,7 @@ app.MapHub<NotificationHub>("/hubs/notifications");
 app.MapHub<TaskHub>("/hubs/tasks");
 app.MapHub<DealHub>("/hubs/deals");
 app.MapHub<DailyPlanHub>("/hubs/daily-plan");
+app.MapHub<TranslationHub>("/hubs/translations");
 
 var urls = builder.Configuration["urls"] ?? "http://localhost:5100";
 app.Urls.Add(urls);
