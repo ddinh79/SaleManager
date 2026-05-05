@@ -93,3 +93,9 @@ public enum NotificationPriority
     High = 2,
     Urgent = 3
 }
+
+public enum Locale
+{
+    vi,
+    en
+}
