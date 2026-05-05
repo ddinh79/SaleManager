@@ -133,11 +133,12 @@ builder.Services.AddScoped<DealHub>();
 
 var app = builder.Build();
 
-// Ensure database created on startup
+// Ensure database created and seeded on startup
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.EnsureCreated();
+    SeedTranslations.Seed(db);
 }
 
 // Configure the HTTP request pipeline.
