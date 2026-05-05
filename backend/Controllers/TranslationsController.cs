@@ -19,7 +19,13 @@ public class TranslationsController : ControllerBase
         _service = service;
     }
 
-    private Guid GetCurrentUserId() => Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+    private Guid GetCurrentUserId()
+    {
+        var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(claim) || !Guid.TryParse(claim, out var userId))
+            throw new UnauthorizedAccessException("Invalid user token");
+        return userId;
+    }
 
     [HttpGet]
     public async Task<ActionResult<I18nResponse>> GetTranslations([FromQuery] string locale, [FromQuery] string? ns = null)
@@ -54,7 +60,7 @@ public class TranslationsController : ControllerBase
     {
         try
         {
-            var result = await _service.UpdateTranslationAsync(key, request.Locale, request.Value, GetCurrentUserId());
+            var result = await _service.UpdateTranslationAsync(key, request.Locale, request.Value, request.ExpectedVersion, GetCurrentUserId());
             if (result == null)
                 return NotFound($"Key '{key}' not found");
 
@@ -89,8 +95,8 @@ public class TranslationsController : ControllerBase
     {
         try
         {
-            var count = await _service.BulkUpdateAsync(request.Locale, request.Changes, GetCurrentUserId());
-            return Ok(new BulkUpdateResponse { Updated = count });
+            var result = await _service.BulkUpdateAsync(request.Locale, request.Changes, GetCurrentUserId());
+            return Ok(result);
         }
         catch (InvalidOperationException ex)
         {

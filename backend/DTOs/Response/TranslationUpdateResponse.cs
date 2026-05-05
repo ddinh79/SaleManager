@@ -12,4 +12,5 @@ public class TranslationUpdateResponse
 public class BulkUpdateResponse
 {
     public int Updated { get; set; }
+    public int NewVersion { get; set; }
 }

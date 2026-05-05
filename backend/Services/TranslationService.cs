@@ -93,13 +93,19 @@ public class TranslationService : ITranslationService
         }).ToList();
     }
 
-    public async Task<TranslationUpdateResponse?> UpdateTranslationAsync(string key, string locale, string value, Guid userId)
+    public async Task<TranslationUpdateResponse?> UpdateTranslationAsync(string key, string locale, string value, int? expectedVersion, Guid userId)
     {
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
             var translation = await _repo.GetTranslationAsync(key, locale);
             if (translation == null) return null;
+
+            var currentVersion = await _repo.GetVersionAsync(locale);
+            if (expectedVersion.HasValue && currentVersion != expectedVersion.Value)
+            {
+                throw new InvalidOperationException("CONCURRENCY_CONFLICT:Version mismatch, please refresh");
+            }
 
             var oldValue = translation.Value;
             translation.Value = value;
@@ -181,7 +187,7 @@ public class TranslationService : ITranslationService
         return new TranslationKeyResponse { Key = key, Category = category, Description = description, IsDeleted = false };
     }
 
-    public async Task<int> BulkUpdateAsync(string locale, List<BulkTranslationChange> changes, Guid userId)
+    public async Task<BulkUpdateResponse> BulkUpdateAsync(string locale, List<BulkTranslationChange> changes, Guid userId)
     {
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
@@ -221,7 +227,7 @@ public class TranslationService : ITranslationService
                 });
             }
 
-            return changes.Count;
+            return new BulkUpdateResponse { Updated = changes.Count, NewVersion = versionEntity.Version };
         }
         catch
         {
