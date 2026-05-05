@@ -21,6 +21,7 @@ public class DealRepository : Repository<Deal>, IDealRepository
     {
         return await _dbSet
             .Include(d => d.Doctor)
+            .Include(d => d.Doctor.Hospital)
             .Where(d => d.SalesId == salesId)
             .OrderBy(d => d.Position)
             .Skip(offset)
@@ -32,6 +33,7 @@ public class DealRepository : Repository<Deal>, IDealRepository
     {
         return await _dbSet
             .Include(d => d.Doctor)
+            .Include(d => d.Doctor.Hospital)
             .Where(d => salesIds.Contains(d.SalesId))
             .OrderBy(d => d.Position)
             .Skip(offset)
@@ -44,6 +46,7 @@ public class DealRepository : Repository<Deal>, IDealRepository
         return await _dbSet
             .Include(d => d.Doctor)
             .Include(d => d.Sales)
+            .Include(d => d.Doctor.Hospital)
             .OrderBy(d => d.Position)
             .Skip(offset)
             .Take(limit)
@@ -73,10 +76,37 @@ public class DealRepository : Repository<Deal>, IDealRepository
         return max;
     }
 
+    public async Task<IEnumerable<Deal>> GetAllForMetricsAsync()
+    {
+        return await _dbSet
+            .Include(d => d.Doctor)
+            .Include(d => d.Doctor.Hospital)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Deal>> GetAllBySalesIdForMetricsAsync(Guid salesId)
+    {
+        return await _dbSet
+            .Include(d => d.Doctor)
+            .Include(d => d.Doctor.Hospital)
+            .Where(d => d.SalesId == salesId)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Deal>> GetAllByTeamSalesIdsForMetricsAsync(IEnumerable<Guid> salesIds)
+    {
+        return await _dbSet
+            .Include(d => d.Doctor)
+            .Include(d => d.Doctor.Hospital)
+            .Where(d => salesIds.Contains(d.SalesId))
+            .ToListAsync();
+    }
+
     public async Task<List<Deal>> GetByStageAsync(DealStage stage, int limit = 50, int offset = 0)
     {
         return await _dbSet
             .Include(d => d.Doctor)
+            .Include(d => d.Doctor.Hospital)
             .Include(d => d.Sales)
             .Where(d => d.Stage == stage)
             .OrderBy(d => d.Position)

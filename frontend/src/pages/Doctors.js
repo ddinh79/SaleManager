@@ -43,7 +43,7 @@ export const Doctors = () => {
                 }),
                 hospitalService.getHospitals(),
             ]);
-            setDoctors(doctorsRes.data);
+            setDoctors(doctorsRes.Data);
             setHospitals(hospitalsRes);
         }
         catch (error) {

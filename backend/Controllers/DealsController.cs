@@ -117,8 +117,8 @@ public class DealsController : ControllerBase
         }
     }
 
-    [HttpPost("{id}/rebalance")]
-    public async Task<ActionResult> RebalanceStage(Guid id, [FromQuery] string stage)
+    [HttpPost("rebalance")]
+    public async Task<ActionResult> RebalanceStage([FromQuery] string stage)
     {
         try
         {

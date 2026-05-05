@@ -1,164 +1,158 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card } from '../components/common/Card';
-import { Button } from '../components/common/Button';
-import { taskService, type TaskItem } from '../services/taskService';
-import { Phone, MessageSquare, Users, Activity as ActivityIcon } from 'lucide-react';
+import { useTasks } from '../hooks/useTasks';
+import { TaskItem, TaskFilter } from '../types';
+import { Clock, AlertCircle, CheckCircle } from 'lucide-react';
 
-const temperatureColors: Record<string, string> = {
-  HOT: 'bg-red-100 text-red-700',
-  WARM: 'bg-yellow-100 text-yellow-700',
-  COLD: 'bg-gray-100 text-gray-500',
-};
+const filterTabs: { value: TaskFilter; label: string }[] = [
+  { value: 'ALL', label: 'Tất cả' },
+  { value: 'OVERDUE', label: 'Quá hạn' },
+  { value: 'CLOSING_SOON', label: 'Sắp đóng' },
+  { value: 'TODAY', label: 'Hôm nay' },
+];
 
-const temperatureEmoji: Record<string, string> = {
-  HOT: '🔥',
-  WARM: '🌤',
-  COLD: '❄️',
-};
+function getTaskColor(task: TaskItem): string {
+  if (task.overdueDays > 0) return 'border-l-red-500 bg-red-50';
+  if (task.type === 'DEAL_CLOSING') {
+    if (task.overdueDays >= -1) return 'border-l-orange-500 bg-orange-50';
+    return 'border-l-yellow-500 bg-yellow-50';
+  }
+  return 'border-l-blue-500 bg-white';
+}
 
-export function Tasks() {
-  const navigate = useNavigate();
-  const [tasks, setTasks] = useState<TaskItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [snoozeOpen, setSnoozeOpen] = useState<string | null>(null);
-  const [tempOpen, setTempOpen] = useState<string | null>(null);
+function getTaskIcon(task: TaskItem) {
+  if (task.overdueDays > 0) return <AlertCircle className="w-5 h-5 text-red-500" />;
+  if (task.type === 'DEAL_CLOSING') return <Clock className="w-5 h-5 text-orange-500" />;
+  return <CheckCircle className="w-5 h-5 text-blue-500" />;
+}
 
-  useEffect(() => {
-    loadTasks();
-  }, []);
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+    maximumFractionDigits: 0,
+  }).format(value);
+}
 
-  const loadTasks = async () => {
-    try {
-      const data = await taskService.getTodayTasks();
-      setTasks(data);
-    } catch (error) {
-      console.error('Failed to load tasks:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLogActivity = (doctorId: string) => {
-    navigate(`/activities?doctorId=${doctorId}`);
-  };
-
-  const handleTemperatureChange = async (doctorId: string, temp: 'HOT' | 'WARM' | 'COLD') => {
-    try {
-      await taskService.updateTemperature(doctorId, temp);
-      setTempOpen(null);
-      loadTasks();
-    } catch (error) {
-      console.error('Failed to update temperature:', error);
-    }
-  };
-
-  const handleSnooze = async (doctorId: string, days: number) => {
-    try {
-      await taskService.snooze(doctorId, days);
-      setSnoozeOpen(null);
-      loadTasks();
-    } catch (error) {
-      console.error('Failed to snooze:', error);
-    }
-  };
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  };
-
-  const getLastActivityText = (task: TaskItem) => {
-    if (!task.lastActivityAt) return 'No activity yet';
-    const days = Math.floor((Date.now() - new Date(task.lastActivityAt).getTime()) / (1000 * 60 * 60 * 24));
-    if (days === 0) return 'Today';
-    if (days === 1) return 'Yesterday';
-    return `${days} days ago`;
-  };
-
+function TaskCard({ task, onSnooze, onComplete }: { task: TaskItem; onSnooze: (days: number) => void; onComplete: () => void }) {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-800">Today's Tasks</h1>
-        <span className="text-sm text-gray-500">{tasks.length} tasks</span>
+    <div className={`border-l-4 ${getTaskColor(task)} rounded-lg shadow-sm p-4 mb-3`}>
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            {getTaskIcon(task)}
+            <h3 className="font-semibold text-slate-800">{task.doctorName}</h3>
+          </div>
+          <p className="text-sm text-slate-500">{task.hospitalName}</p>
+
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+              task.overdueDays > 0 ? 'bg-red-100 text-red-700' :
+              task.type === 'DEAL_CLOSING' ? 'bg-orange-100 text-orange-700' :
+              'bg-blue-100 text-blue-700'
+            }`}>
+              {task.type === 'DEAL_OVERDUE' && `Quá hạn ${task.overdueDays} ngày`}
+              {task.type === 'DEAL_CLOSING' && (task.overdueDays >= 0 ? `Đóng trong ${task.overdueDays} ngày` : `Đóng trong ${Math.abs(task.overdueDays)} ngày`)}
+              {task.type === 'FOLLOW_UP' && 'Follow-up hôm nay'}
+            </span>
+
+            {task.dealValue && (
+              <span className="text-xs font-medium text-slate-600">
+                💰 {formatCurrency(task.dealValue)}
+              </span>
+            )}
+            {task.dealStage && (
+              <span className="text-xs text-slate-500">
+                {task.dealStage}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => onComplete()}
+            className="p-2 text-green-600 hover:bg-green-100 rounded-lg"
+            title="Hoàn thành"
+          >
+            <CheckCircle className="w-5 h-5" />
+          </button>
+          <div className="relative group">
+            <button
+              className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg"
+              title="Tạm hoãn"
+            >
+              <Clock className="w-5 h-5" />
+            </button>
+            <div className="hidden group-hover:block absolute right-0 top-full mt-1 bg-white shadow-lg rounded-lg border p-2 z-10 min-w-[120px]">
+              <button onClick={() => onSnooze(1)} className="block w-full text-left px-3 py-1 text-sm hover:bg-slate-100 rounded">1 ngày</button>
+              <button onClick={() => onSnooze(3)} className="block w-full text-left px-3 py-1 text-sm hover:bg-slate-100 rounded">3 ngày</button>
+              <button onClick={() => onSnooze(7)} className="block w-full text-left px-3 py-1 text-sm hover:bg-slate-100 rounded">7 ngày</button>
+            </div>
+          </div>
+        </div>
       </div>
-
-      {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-        </div>
-      ) : tasks.length === 0 ? (
-        <Card className="p-8 text-center">
-          <p className="text-gray-500">No tasks for today. Enjoy your day!</p>
-        </Card>
-      ) : (
-        <div className="space-y-3">
-          {tasks.map((task) => (
-            <Card key={task.doctorId} className="p-4">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
-                    <span className="text-xl">{temperatureEmoji[task.temperature]}</span>
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium text-slate-800">{task.doctorName}</p>
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${temperatureColors[task.temperature]}`}>
-                        {task.temperature}
-                      </span>
-                      {task.isOverdue && (
-                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
-                          OVERDUE
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Last: {task.lastActivityType ? `${task.lastActivityType} ` : ''}{getLastActivityText(task)}
-                    </p>
-                    <p className="text-sm text-gray-400">
-                      Next: {formatDate(task.nextFollowUpAt)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Button size="sm" onClick={() => handleLogActivity(task.doctorId)}>
-                    Log Activity
-                  </Button>
-
-                  {/* Temperature dropdown */}
-                  <div className="relative">
-                    <Button size="sm" variant="ghost" onClick={() => setTempOpen(tempOpen === task.doctorId ? null : task.doctorId)}>
-                      Temp ▾
-                    </Button>
-                    {tempOpen === task.doctorId && (
-                      <div className="absolute right-0 mt-1 w-32 bg-white rounded-lg shadow-lg border z-10">
-                        <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100" onClick={() => handleTemperatureChange(task.doctorId, 'HOT')}>🔥 Hot</button>
-                        <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100" onClick={() => handleTemperatureChange(task.doctorId, 'WARM')}>🌤 Warm</button>
-                        <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100" onClick={() => handleTemperatureChange(task.doctorId, 'COLD')}>❄️ Cold</button>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Snooze dropdown */}
-                  <div className="relative">
-                    <Button size="sm" variant="ghost" onClick={() => setSnoozeOpen(snoozeOpen === task.doctorId ? null : task.doctorId)}>
-                      Snooze ▾
-                    </Button>
-                    {snoozeOpen === task.doctorId && (
-                      <div className="absolute right-0 mt-1 w-32 bg-white rounded-lg shadow-lg border z-10">
-                        <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100" onClick={() => handleSnooze(task.doctorId, 1)}>1 day</button>
-                        <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100" onClick={() => handleSnooze(task.doctorId, 3)}>3 days</button>
-                        <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100" onClick={() => handleSnooze(task.doctorId, 7)}>1 week</button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
+
+export const Tasks = () => {
+  const { tasks, summary, loading, error, filter, setFilter, snooze, complete } = useTasks();
+
+  if (loading) {
+    return <div className="flex items-center justify-center h-64"><span className="text-slate-500">Đang tải...</span></div>;
+  }
+
+  if (error) {
+    return <div className="flex items-center justify-center h-64"><span className="text-red-500">{error}</span></div>;
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">Công việc</h1>
+          <p className="text-slate-500">Danh sách công việc ưu tiên</p>
+        </div>
+        {summary && (
+          <div className="flex gap-4 text-sm">
+            <span className="text-red-600">⚠️ {summary.overdue} quá hạn</span>
+            <span className="text-orange-600">⏰ {summary.closingSoon} sắp đóng</span>
+            <span className="text-blue-600">📋 {summary.total} tổng cộng</span>
+          </div>
+        )}
+      </div>
+
+      <div className="flex gap-2 border-b border-slate-200 pb-2">
+        {filterTabs.map(tab => (
+          <button
+            key={tab.value}
+            onClick={() => setFilter(tab.value)}
+            className={`px-4 py-2 rounded-t-lg text-sm font-medium transition-colors ${
+              filter === tab.value
+                ? 'bg-white border-b-2 border-blue-500 text-blue-600'
+                : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="space-y-3">
+        {tasks.length === 0 ? (
+          <div className="text-center py-12 text-slate-500">
+            Không có công việc nào
+          </div>
+        ) : (
+          tasks.map(task => (
+            <TaskCard
+              key={`${task.type}-${task.id}`}
+              task={task}
+              onSnooze={(days) => snooze(task.id, task.type, days)}
+              onComplete={() => complete(task.id, task.type)}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+};

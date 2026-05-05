@@ -48,7 +48,7 @@ export const Doctors: React.FC = () => {
         }),
         hospitalService.getHospitals(),
       ]);
-      setDoctors(doctorsRes.data);
+      setDoctors(doctorsRes.Data);
       setHospitals(hospitalsRes);
     } catch (error) {
       console.error('Failed to load data:', error);

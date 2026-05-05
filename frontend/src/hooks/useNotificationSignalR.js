@@ -3,7 +3,7 @@ import * as signalR from '@microsoft/signalr';
 import { useNotificationStore } from '../store/notificationStore';
 import { useAuthStore } from '../store/authStore';
 import notificationService from '../services/notificationService';
-const HUB_URL = 'http://localhost:5001/hubs/notifications';
+const HUB_URL = 'http://localhost:5100/hubs/notifications';
 export const useNotificationSignalR = () => {
     const { addNotification, setUnreadCount, setConnectionStatus } = useNotificationStore();
     const user = useAuthStore((state) => state.user);

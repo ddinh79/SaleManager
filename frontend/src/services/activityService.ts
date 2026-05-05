@@ -37,7 +37,7 @@ export interface ActivityFilters {
 
 export const activityService = {
   createActivity: async (data: CreateActivityRequest): Promise<Activity> => {
-    const response = await api.post('/api/activities', data);
+    const response = await api.post('/activities', data);
     return response.data;
   },
 
@@ -47,18 +47,18 @@ export const activityService = {
     if (filters?.from) params.append('from', filters.from);
     if (filters?.to) params.append('to', filters.to);
     if (filters?.type) params.append('type', filters.type);
-    const response = await api.get(`/api/activities?${params}`);
+    const response = await api.get(`/activities?${params}`);
     return response.data;
   },
 
   getTimeline: async (doctorId?: string): Promise<Activity[]> => {
     const params = doctorId ? `?doctorId=${doctorId}` : '';
-    const response = await api.get(`/api/activities/timeline${params}`);
+    const response = await api.get(`/activities/timeline${params}`);
     return response.data;
   },
 
   getById: async (id: string): Promise<Activity> => {
-    const response = await api.get(`/api/activities/${id}`);
+    const response = await api.get(`/activities/${id}`);
     return response.data;
   },
 };

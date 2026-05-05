@@ -23,6 +23,8 @@ const Notifications = lazy(() => import('./pages/Notifications').then(m => ({ de
 const NotificationSettings = lazy(() => import('./pages/NotificationSettings').then(m => ({ default: m.default })));
 const Unauthorized = lazy(() => import('./pages/Unauthorized').then(m => ({ default: m.Unauthorized })));
 const NotFound = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
+const Tasks = lazy(() => import('./pages/Tasks').then(m => ({ default: m.Tasks })));
+const DailyPlan = lazy(() => import('./pages/DailyPlan').then(m => ({ default: m.DailyPlan })));
 
 // Loading fallback spinner
 const LoadingFallback: React.FC = () => (
@@ -123,6 +125,8 @@ function App() {
               }
             />
             <Route path="activities" element={<Activities />} />
+            <Route path="tasks" element={<Tasks />} />
+            <Route path="daily-plan" element={<DailyPlan />} />
             <Route path="notifications" element={<Notifications />} />
             <Route path="notifications/settings" element={<NotificationSettings />} />
           </Route>

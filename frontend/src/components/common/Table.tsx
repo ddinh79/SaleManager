@@ -13,7 +13,7 @@ interface TableProps<T> {
   emptyMessage?: string;
 }
 
-export function Table<T extends { id?: string | number }>({ columns, data, onRowClick, emptyMessage = 'No data available' }: TableProps<T>) {
+export function Table<T extends { id?: string | number }>({ columns, data = [], onRowClick, emptyMessage = 'No data available' }: TableProps<T>) {
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-slate-200">

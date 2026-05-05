@@ -1,34 +1,18 @@
 import api from './api';
-
-export interface TaskItem {
-  doctorId: string;
-  doctorName: string;
-  temperature: 'HOT' | 'WARM' | 'COLD';
-  lastActivityAt: string | null;
-  nextFollowUpAt: string;
-  isOverdue: boolean;
-  lastActivityType: string | null;
-}
-
-export interface UpdateTemperatureRequest {
-  temperature: 'HOT' | 'WARM' | 'COLD';
-}
-
-export interface SnoozeRequest {
-  days: number;
-}
+import { TaskItem, TasksResponse, TaskFilter } from '../types';
 
 export const taskService = {
-  getTodayTasks: async (): Promise<TaskItem[]> => {
-    const response = await api.get('/api/tasks/today');
+  getTasks: async (filter?: TaskFilter): Promise<TasksResponse> => {
+    const params = filter && filter !== 'ALL' ? { filter } : {};
+    const response = await api.get('/tasks', { params });
     return response.data;
   },
 
-  updateTemperature: async (doctorId: string, temperature: 'HOT' | 'WARM' | 'COLD'): Promise<void> => {
-    await api.post(`/api/doctors/${doctorId}/temperature`, { temperature });
+  snoozeTask: async (taskId: string, taskType: string, days: number): Promise<void> => {
+    await api.post(`/tasks/${taskId}/snooze?type=${taskType}`, { days });
   },
 
-  snooze: async (doctorId: string, days: number): Promise<void> => {
-    await api.post(`/api/doctors/${doctorId}/snooze`, { days });
+  completeTask: async (taskId: string, taskType: string): Promise<void> => {
+    await api.post(`/tasks/${taskId}/complete?type=${taskType}`);
   },
 };

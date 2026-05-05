@@ -15,7 +15,8 @@ export const doctorService = {
     deleteDoctor: (id) => {
         return api.delete(`/doctors/${id}`);
     },
-    getAssignedDoctors: () => {
-        return api.get('/doctors/assigned');
+    getAssignedDoctors: async () => {
+        const response = await api.get('/doctors/assigned');
+        return response.data;
     },
 };

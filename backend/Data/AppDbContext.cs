@@ -13,6 +13,10 @@ public class AppDbContext : DbContext
     public DbSet<Activity> Activities => Set<Activity>();
     public DbSet<Deal> Deals => Set<Deal>();
     public DbSet<Order> Orders => Set<Order>();
+    public DbSet<UserPlanSettings> UserPlanSettings => Set<UserPlanSettings>();
+    public DbSet<UserPlanMetrics> UserPlanMetrics => Set<UserPlanMetrics>();
+    public DbSet<DailyPlan> DailyPlans => Set<DailyPlan>();
+    public DbSet<DailyPlanTask> DailyPlanTasks => Set<DailyPlanTask>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<NotificationDedup> NotificationDedups => Set<NotificationDedup>();
     public DbSet<NotificationSettings> NotificationSettings => Set<NotificationSettings>();
@@ -108,6 +112,34 @@ public class AppDbContext : DbContext
             .HasOne(ns => ns.User)
             .WithMany()
             .HasForeignKey(ns => ns.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // DailyPlan -> DailyPlanTask
+        modelBuilder.Entity<DailyPlan>()
+            .HasMany(p => p.Tasks)
+            .WithOne(t => t.DailyPlan)
+            .HasForeignKey(t => t.DailyPlanId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // DailyPlan -> User
+        modelBuilder.Entity<DailyPlan>()
+            .HasOne(p => p.Sales)
+            .WithMany()
+            .HasForeignKey(p => p.SalesId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // UserPlanSettings -> User (one-to-one)
+        modelBuilder.Entity<UserPlanSettings>()
+            .HasOne(s => s.User)
+            .WithOne()
+            .HasForeignKey<UserPlanSettings>(s => s.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // UserPlanMetrics -> User (one-to-one)
+        modelBuilder.Entity<UserPlanMetrics>()
+            .HasOne(m => m.User)
+            .WithOne()
+            .HasForeignKey<UserPlanMetrics>(m => m.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         SeedData(modelBuilder);

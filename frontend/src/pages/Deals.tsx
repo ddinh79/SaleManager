@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd';
 import * as signalR from '@microsoft/signalr';
 import { dealService } from '../services/dealService';
+import { userService } from '../services/userService';
 import { useAuthStore } from '../store/authStore';
-import type { Deal, DealStage, StageMetric, LostReason } from '../types';
+import type { Deal, DealStage, StageMetric, LostReason, User } from '../types';
 import { DealCard } from '../components/deals/DealCard';
 import { AddDealModal } from '../components/deals/AddDealModal';
 import { DealDetailDrawer } from '../components/deals/DealDetailDrawer';
@@ -51,11 +52,12 @@ export const Deals: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [filterSales, setFilterSales] = useState<string>('');
   const [filterProduct, setFilterProduct] = useState<string>('');
+  const [salesUsers, setSalesUsers] = useState<User[]>([]);
 
   const connectionRef = useRef<signalR.HubConnection | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const { token } = useAuthStore();
+  const { token, user } = useAuthStore();
 
   // Load pipeline data
   const loadPipeline = useCallback(async () => {
@@ -98,6 +100,23 @@ export const Deals: React.FC = () => {
   const rollbackDeal = useCallback(() => {
     loadPipeline(); // Full reload on failure
   }, [loadPipeline]);
+
+  // Load sales users for filter dropdown
+  const loadSalesUsers = useCallback(async () => {
+    try {
+      if (user?.role === 'Admin') {
+        const users = await userService.getSalesMembers();
+        setSalesUsers(users);
+      } else if (user?.role === 'SalesManager') {
+        const users = await userService.getTeam(user.id);
+        setSalesUsers(users);
+      } else {
+        setSalesUsers([]);
+      }
+    } catch (error) {
+      console.error('Failed to load sales users:', error);
+    }
+  }, [user?.role, user?.id]);
 
   // Handle drag end
   const handleDragEnd = async (result: DropResult) => {
@@ -269,6 +288,11 @@ export const Deals: React.FC = () => {
     loadPipeline();
   }, [loadPipeline]);
 
+  // Load sales users for filter
+  useEffect(() => {
+    loadSalesUsers();
+  }, [loadSalesUsers]);
+
   // Apply filters to pipeline
   const filteredPipeline = Object.entries(pipeline).reduce((acc, [stage, deals]) => {
     let filtered = deals;
@@ -308,6 +332,9 @@ export const Deals: React.FC = () => {
             className="px-3 py-1.5 border rounded-md text-sm"
           >
             <option value="">All Sales</option>
+            {salesUsers.map((u) => (
+              <option key={u.id} value={u.id}>{u.fullName}</option>
+            ))}
           </select>
           <select
             value={filterProduct}

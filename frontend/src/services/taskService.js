@@ -1,13 +1,14 @@
 import api from './api';
 export const taskService = {
-    getTodayTasks: async () => {
-        const response = await api.get('/api/tasks/today');
+    getTasks: async (filter) => {
+        const params = filter && filter !== 'ALL' ? { filter } : {};
+        const response = await api.get('/tasks', { params });
         return response.data;
     },
-    updateTemperature: async (doctorId, temperature) => {
-        await api.post(`/api/doctors/${doctorId}/temperature`, { temperature });
+    snoozeTask: async (taskId, taskType, days) => {
+        await api.post(`/tasks/${taskId}/snooze?type=${taskType}`, { days });
     },
-    snooze: async (doctorId, days) => {
-        await api.post(`/api/doctors/${doctorId}/snooze`, { days });
+    completeTask: async (taskId, taskType) => {
+        await api.post(`/tasks/${taskId}/complete?type=${taskType}`);
     },
 };

@@ -143,20 +143,24 @@ public class DealService : IDealService
     public async Task<PipelineResponse> GetPipelineAsync(Guid? managerId, string userRole, Guid currentUserId, int limit = 50)
     {
         IEnumerable<Deal> deals;
+        IEnumerable<Deal> allDealsForMetrics; // All deals for accurate metrics
 
         if (userRole == "Admin")
         {
             deals = await _dealRepo.GetAllWithDetailsAsync(limit, 0);
+            allDealsForMetrics = await _dealRepo.GetAllForMetricsAsync();
         }
         else if (userRole == "SalesManager")
         {
             var teamSales = await _userRepo.FindAsync(u => u.ManagerId == currentUserId);
             var salesIds = teamSales.Select(u => u.Id).ToList();
             deals = await _dealRepo.GetByTeamSalesIdsAsync(salesIds, limit, 0);
+            allDealsForMetrics = await _dealRepo.GetAllByTeamSalesIdsForMetricsAsync(salesIds);
         }
         else
         {
             deals = await _dealRepo.GetBySalesIdAsync(currentUserId, limit, 0);
+            allDealsForMetrics = await _dealRepo.GetAllBySalesIdForMetricsAsync(currentUserId);
         }
 
         var grouped = deals.GroupBy(d => d.Stage.ToString())
@@ -169,8 +173,8 @@ public class DealService : IDealService
             if (!grouped.ContainsKey(stage)) grouped[stage] = new List<DealResponse>();
         }
 
-        // Calculate metrics (with caching)
-        var metrics = CalculateCachedMetrics(deals, grouped.Keys.ToList());
+        // Calculate metrics from ALL deals (not limited) for accuracy
+        var metrics = CalculateCachedMetrics(allDealsForMetrics, allStages.ToList());
 
         return new PipelineResponse { Stages = grouped, Metrics = metrics };
     }

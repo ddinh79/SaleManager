@@ -23,7 +23,7 @@ export const AddDealModal = ({ isOpen, onClose, onSuccess }) => {
     const loadDoctors = async () => {
         try {
             const data = await doctorService.getDoctors();
-            setDoctors(data.data);
+            setDoctors(data.Data);
         }
         catch (error) {
             console.error('Failed to load doctors:', error);

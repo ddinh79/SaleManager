@@ -7,7 +7,7 @@ using SalesSystem.Services;
 using SalesSystem.Entities;
 using SalesSystem.Repositories;
 
-namespace backend.Controllers;
+namespace SalesSystem.Controllers;
 
 [Authorize]
 [ApiController]

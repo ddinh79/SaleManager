@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SalesSystem.Services;
 
-namespace backend.Controllers;
+namespace SalesSystem.Controllers;
 
 [Authorize]
 [ApiController]

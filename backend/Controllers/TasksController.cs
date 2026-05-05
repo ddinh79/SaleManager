@@ -1,82 +1,65 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SalesSystem.Entities;
-using SalesSystem.Repositories;
+using SalesSystem.DTOs;
+using SalesSystem.Helpers;
+using SalesSystem.Services;
 
 namespace SalesSystem.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
 public class TasksController : ControllerBase
 {
-    private readonly IDoctorRepository _doctorRepo;
-    private readonly IActivityRepository _activityRepo;
+    private readonly ITaskService _taskService;
 
-    public TasksController(IDoctorRepository doctorRepo, IActivityRepository activityRepo)
+    public TasksController(ITaskService taskService)
     {
-        _doctorRepo = doctorRepo;
-        _activityRepo = activityRepo;
+        _taskService = taskService;
     }
 
-    [HttpGet("today")]
-    public async Task<ActionResult<List<TaskDto>>> GetTodayTasks()
+    [HttpGet]
+    public async Task<ActionResult<TasksResponse>> GetTasks(
+        [FromQuery] TaskFilter filter = TaskFilter.ALL)
     {
-        var salesId = GetCurrentUserId();
-        var role = User.FindFirst(ClaimTypes.Role)?.Value;
+        var userId = JwtHelper.GetUserIdFromToken(User);
+        if (userId == null)
+            return Unauthorized();
 
-        var doctors = (role == "Admin"
-            ? await _doctorRepo.GetAllAsync()
-            : await _doctorRepo.GetAllAsync()).ToList();
-
-        var today = DateTime.UtcNow.Date;
-        var tomorrow = today.AddDays(1);
-
-        var tasks = new List<TaskDto>();
-
-        foreach (var doctor in doctors)
-        {
-            if (doctor.NextFollowUpAt.HasValue && doctor.NextFollowUpAt.Value < tomorrow)
-            {
-                var lastActivity = await _activityRepo.GetByDoctorIdAsync(doctor.Id);
-                var latestActivity = lastActivity.FirstOrDefault();
-
-                tasks.Add(new TaskDto
-                {
-                    DoctorId = doctor.Id,
-                    DoctorName = doctor.Name,
-                    Temperature = doctor.Temperature.ToString(),
-                    LastActivityAt = doctor.LastActivityAt,
-                    NextFollowUpAt = doctor.NextFollowUpAt.Value,
-                    IsOverdue = doctor.NextFollowUpAt.Value < today,
-                    LastActivityType = latestActivity?.Type.ToString()
-                });
-            }
-        }
-
-        var sorted = tasks
-            .OrderByDescending(t => t.IsOverdue)
-            .ThenBy(t => t.NextFollowUpAt)
-            .ToList();
-
-        return Ok(sorted);
+        var result = await _taskService.GetTasksAsync(userId.Value, filter);
+        return Ok(result);
     }
 
-    private Guid GetCurrentUserId()
+    [HttpPost("{taskId}/snooze")]
+    public async Task<ActionResult> SnoozeTask(
+        Guid taskId,
+        [FromBody] SnoozeRequest request)
     {
-        var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        return Guid.Parse(claim ?? throw new UnauthorizedAccessException());
-    }
-}
+        var userId = JwtHelper.GetUserIdFromToken(User);
+        if (userId == null)
+            return Unauthorized();
 
-public class TaskDto
-{
-    public Guid DoctorId { get; set; }
-    public string DoctorName { get; set; } = string.Empty;
-    public string Temperature { get; set; } = string.Empty;
-    public DateTime? LastActivityAt { get; set; }
-    public DateTime NextFollowUpAt { get; set; }
-    public bool IsOverdue { get; set; }
-    public string? LastActivityType { get; set; }
+        // Determine task type from query or body
+        var taskType = Request.Query["type"].ToString() ?? "FOLLOW_UP";
+        var success = await _taskService.SnoozeTaskAsync(taskId, taskType, request.Days);
+        if (!success)
+            return NotFound();
+
+        return Ok();
+    }
+
+    [HttpPost("{taskId}/complete")]
+    public async Task<ActionResult> CompleteTask(Guid taskId)
+    {
+        var userId = JwtHelper.GetUserIdFromToken(User);
+        if (userId == null)
+            return Unauthorized();
+
+        var taskType = Request.Query["type"].ToString() ?? "FOLLOW_UP";
+        var success = await _taskService.CompleteTaskAsync(taskId, taskType);
+        if (!success)
+            return NotFound();
+
+        return Ok();
+    }
 }

@@ -12,7 +12,12 @@ using SalesSystem.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -92,12 +97,28 @@ builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<IDealService, DealService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<CapacityCalculator>();
+builder.Services.AddScoped<ActivityMatcher>();
+builder.Services.AddScoped<AntiGamingMonitor>();
+builder.Services.AddScoped<IDailyPlanService, DailyPlanService>();
 
 // Background services
 builder.Services.AddHostedService<NotificationBackgroundService>();
 
 // SignalR
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options => {
+    options.EnableDetailedErrors = true;
+});
+// Configure SignalR CORS to allow frontend origin
+builder.Services.AddCors(options => {
+    options.AddPolicy("SignalR", policy => {
+        policy.SetIsOriginAllowed(_ => true)
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
 builder.Services.AddSingleton<INotificationHubContext, NotificationHubContext>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddHttpContextAccessor(); // Required for DealHub
@@ -121,13 +142,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// CORS must be BEFORE SignalR hub mapping
+app.UseCors("SignalR");
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseJwtMiddleware();
 
 app.MapControllers();
 app.MapHub<NotificationHub>("/hubs/notifications");
+app.MapHub<TaskHub>("/hubs/tasks");
 app.MapHub<DealHub>("/hubs/deals");
+app.MapHub<DailyPlanHub>("/hubs/daily-plan");
 
 var urls = builder.Configuration["urls"] ?? "http://localhost:5100";
 app.Urls.Add(urls);

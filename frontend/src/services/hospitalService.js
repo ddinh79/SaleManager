@@ -1,7 +1,8 @@
 import api from './api';
 export const hospitalService = {
-    getHospitals: () => {
-        return api.get('/hospitals');
+    getHospitals: async () => {
+        const response = await api.get('/hospitals');
+        return response.data;
     },
     getHospital: (id) => {
         return api.get(`/hospitals/${id}`);

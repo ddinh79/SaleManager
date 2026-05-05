@@ -51,7 +51,7 @@ export interface LoginResponse {
 }
 
 export interface PaginatedResponse<T> {
-  data: T[];
+  Data: T[];
   totalCount: number;
   page: number;
   pageSize: number;
@@ -148,6 +148,42 @@ export interface ForecastResponse {
   weightedForecast: number;
 }
 
+// Task types
+export type TaskType = 'FOLLOW_UP' | 'DEAL_CLOSING' | 'DEAL_OVERDUE';
+export type TaskPriority = 'HIGH' | 'MEDIUM' | 'LOW';
+
+export interface TaskItem {
+  id: string;
+  type: TaskType;
+  priority: TaskPriority;
+  score: number;
+  doctorId: string;
+  doctorName: string;
+  hospitalName: string;
+  temperature: 'HOT' | 'WARM' | 'COLD';
+  dealId?: string;
+  dealName?: string;
+  dealValue?: number;
+  dealStage?: DealStage;
+  dueAt: string;
+  overdueDays: number;
+  lastActivityAt?: string;
+}
+
+export interface TasksSummary {
+  total: number;
+  overdue: number;
+  closingSoon: number;
+  today: number;
+}
+
+export interface TasksResponse {
+  tasks: TaskItem[];
+  summary: TasksSummary;
+}
+
+export type TaskFilter = 'ALL' | 'OVERDUE' | 'CLOSING_SOON' | 'TODAY';
+
 // Order types
 export type OrderStatus = 'PENDING_APPROVAL' | 'APPROVED' | 'READY_TO_SHIP' | 'SHIPPED' | 'COMPLETED';
 
@@ -168,4 +204,84 @@ export interface Order {
 export interface OrderListResponse {
   items: Order[];
   totalCount: number;
+}
+
+// Daily Plan types
+export type PlanTaskCategory = 'MUST_DO' | 'SHOULD_DO' | 'NICE_TO_HAVE';
+export type PlanTaskStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED_AUTO' | 'COMPLETED_MANUAL' | 'SKIPPED' | 'EXPIRED' | 'OFF_TRACK';
+export type PlanStatus = 'ON_TRACK' | 'OFF_TRACK' | 'COMPLETED' | 'NOT_STARTED';
+export type CapacityMode = 'NORMAL' | 'RECOVERY' | 'STRETCH';
+
+export interface DailyPlanTask {
+  id: string;
+  plannedStart: string;
+  actualStart?: string;
+  delayMinutes: number;
+  plannedDurationMinutes: number;
+  category: PlanTaskCategory;
+  score: number;
+  status: PlanTaskStatus;
+  isLowConfidence: boolean;
+  doctorId: string;
+  doctorName: string;
+  hospitalName: string;
+  taskType: string;
+  dealValue?: number;
+  temperature: 'HOT' | 'WARM' | 'COLD';
+}
+
+export interface CapacityInfo {
+  mustDoLimit: number;
+  shouldDoLimit: number;
+  startTime: string;
+  mode: CapacityMode;
+}
+
+export interface DailyPlan {
+  id: string;
+  date: string;
+  status: PlanStatus;
+  activeTaskId?: string;
+  completionRate: number;
+  confidenceScore: number;
+  isRecoveryMode: boolean;
+  capacity: CapacityInfo;
+  mustDo: DailyPlanTask[];
+  shouldDo: DailyPlanTask[];
+  niceToHave: DailyPlanTask[];
+}
+
+export interface ManualCompleteRequest {
+  reasonCode: string;
+  note?: string;
+}
+
+export interface SkipTaskRequest {
+  reasonCode: string;
+  note?: string;
+}
+
+export interface TeamMemberPlan {
+  salesId: string;
+  salesName: string;
+  planStatus: string;
+  activeTask?: { task: string; startedAt?: string };
+  completed: number;
+  mustDo: number;
+  overdueCount: number;
+  lastActivityAt?: string;
+}
+
+export interface TeamSummary {
+  teamOnTrack: number;
+  teamOffTrack: number;
+  teamNotStarted: number;
+  totalCompleted: number;
+  totalMustDo: number;
+}
+
+export interface TeamDailyPlan {
+  date: string;
+  teamPlans: TeamMemberPlan[];
+  summary: TeamSummary;
 }

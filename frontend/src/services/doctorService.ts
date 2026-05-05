@@ -28,7 +28,8 @@ export const doctorService = {
     return api.delete(`/doctors/${id}`);
   },
 
-  getAssignedDoctors: (): Promise<Doctor[]> => {
-    return api.get('/doctors/assigned');
+  getAssignedDoctors: async (): Promise<Doctor[]> => {
+    const response = await api.get('/doctors/assigned');
+    return response.data;
   },
 };

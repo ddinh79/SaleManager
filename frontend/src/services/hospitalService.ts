@@ -2,8 +2,9 @@ import api from './api';
 import { Hospital, CreateHospitalRequest } from '../types';
 
 export const hospitalService = {
-  getHospitals: (): Promise<Hospital[]> => {
-    return api.get('/hospitals');
+  getHospitals: async (): Promise<Hospital[]> => {
+    const response = await api.get('/hospitals');
+    return response.data;
   },
 
   getHospital: (id: string): Promise<Hospital> => {

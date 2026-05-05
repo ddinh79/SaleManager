@@ -90,8 +90,7 @@
               "RelativeToolTip": "backend\\Properties\\launchSettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-05-03T16:01:20.288Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-03T16:01:20.288Z"
             },
             {
               "$type": "Document",
@@ -103,8 +102,7 @@
               "RelativeToolTip": "backend\\appsettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-05-03T16:00:14.786Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-03T16:00:14.786Z"
             },
             {
               "$type": "Document",
@@ -116,8 +114,7 @@
               "RelativeToolTip": "backend\\Program.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAIAAAABAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-03T16:01:34.436Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-03T16:01:34.436Z"
             },
             {
               "$type": "Document",
@@ -142,8 +139,7 @@
               "RelativeToolTip": "backend\\obj\\project.assets.json",
               "ViewState": "AgIAAIkMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-05-03T16:39:17.076Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-03T16:39:17.076Z"
             },
             {
               "$type": "Document",
@@ -155,8 +151,7 @@
               "RelativeToolTip": "start-frontend.bat",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000614|",
-              "WhenOpened": "2026-05-03T16:38:42.081Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-03T16:38:42.081Z"
             },
             {
               "$type": "Document",
@@ -168,8 +163,7 @@
               "RelativeToolTip": "backend\\Services\\UserService.cs",
               "ViewState": "AgIAAGQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-03T16:02:35.887Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-03T16:02:35.887Z"
             },
             {
               "$type": "Document",
@@ -181,8 +175,7 @@
               "RelativeToolTip": "package-lock.json",
               "ViewState": "AgIAAGwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-05-03T15:59:45.575Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-03T15:59:45.575Z"
             },
             {
               "$type": "Document",
@@ -194,8 +187,7 @@
               "RelativeToolTip": "package.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-05-03T15:59:40.28Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-03T15:59:40.28Z"
             },
             {
               "$type": "Document",
@@ -207,8 +199,7 @@
               "RelativeToolTip": "backend\\SalesSystem.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-05-03T16:02:29.085Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-03T16:02:29.085Z"
             },
             {
               "$type": "Document",
@@ -220,8 +211,7 @@
               "RelativeToolTip": "backend\\bin\\Debug\\net8.0\\appsettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-05-03T16:00:54.785Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-03T16:00:54.785Z"
             },
             {
               "$type": "Document",
@@ -233,8 +223,7 @@
               "RelativeToolTip": ".env.example",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-05-03T16:00:02.821Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-03T16:00:02.821Z"
             },
             {
               "$type": "Document",
@@ -246,8 +235,7 @@
               "RelativeToolTip": "login.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-05-03T15:59:58.146Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-03T15:59:58.146Z"
             },
             {
               "$type": "Document",
@@ -259,8 +247,7 @@
               "RelativeToolTip": ".playwright-mcp\\page-2026-05-01T04-24-57-642Z.yml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003775|",
-              "WhenOpened": "2026-05-02T13:56:30.867Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-02T13:56:30.867Z"
             }
           ]
         }

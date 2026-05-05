@@ -69,6 +69,6 @@ export const dealService = {
    * Used when gaps become too small.
    */
   rebalanceStage: async (stage: DealStage): Promise<void> => {
-    await api.post(`/deals/${'rebalance'}`, null, { params: { stage } });
+    await api.post('/deals/rebalance', null, { params: { stage } });
   },
 };
